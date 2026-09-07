@@ -37,6 +37,8 @@ class CrashCandidate:
     fatality_count: int = 0
     vehicles_involved: int | None = None
     original_id: str | None = None
+    # False when only the date is known (FARS timestamp_quality == "date_only").
+    time_known: bool = True
     attributes: dict[str, Any] = field(default_factory=dict)
 
 
@@ -108,7 +110,8 @@ def evaluate_match_pair(c1: CrashCandidate, c2: CrashCandidate) -> tuple[bool, f
         return False, 0.0, "spatial_distance_exceeded"
 
     # Temporal check
-    has_full_time = c1.crash_timestamp is not None and c2.crash_timestamp is not None
+    has_dates = c1.crash_timestamp is not None and c2.crash_timestamp is not None
+    has_full_time = has_dates and c1.time_known and c2.time_known
     if has_full_time:
         time_diff = abs(c1.crash_timestamp - c2.crash_timestamp)
         minutes_diff = time_diff.total_seconds() / 60.0
@@ -130,8 +133,8 @@ def evaluate_match_pair(c1: CrashCandidate, c2: CrashCandidate) -> tuple[bool, f
         ):
             return True, 0.80, "timezone_offset_spatiotemporal"
 
-    elif c1.crash_timestamp is not None and c2.crash_timestamp is not None:
-        # Date only match when hour is missing (e.g. FARS partial sentinels)
+    elif has_dates:
+        # At least one side has no hour (e.g. FARS HOUR sentinel), so compare dates only.
         if c1.crash_timestamp.date() == c2.crash_timestamp.date() and dist_m <= 50.0:
             return True, 0.70, "date_only_spatial_match"
 

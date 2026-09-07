@@ -113,6 +113,26 @@ def test_entity_resolution_matching():
     assert is_match is False
 
 
+def test_date_only_fars_record_matches_same_day_crash_nearby():
+    """A FARS record with an unknown hour still matches a nearby crash on the same date."""
+    moco = CrashCandidate("M1", "moco", datetime(2024, 6, 15, 14, 30, tzinfo=UTC), 39.084, -77.152)
+    fars = CrashCandidate(
+        "F1",
+        "fars",
+        datetime(2024, 6, 15, tzinfo=UTC),
+        39.0841,
+        -77.1521,
+        fatality_count=1,
+        time_known=False,
+    )
+    assert evaluate_match_pair(moco, fars) == (True, 0.70, "date_only_spatial_match")
+
+    next_day = CrashCandidate(
+        "F2", "fars", datetime(2024, 6, 16, tzinfo=UTC), 39.0841, -77.1521, time_known=False
+    )
+    assert evaluate_match_pair(moco, next_day)[0] is False
+
+
 def test_resolve_crash_candidates_clustering():
     t0 = datetime(2024, 6, 15, 14, 30, tzinfo=UTC)
     c1 = CrashCandidate("C1", "moco", t0, 39.084, -77.152, fatality_count=1)
