@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import logging
 import re
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -126,7 +126,7 @@ def apply_scd2_amendments(
     output = []
     new_count = 0
     amended_count = 0
-    now = datetime.utcnow().isoformat()
+    now = datetime.now(UTC).isoformat()
 
     for record in records:
         attrs = record.get("attributes", record)
