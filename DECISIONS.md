@@ -49,3 +49,30 @@ with `WEIGHT` and PSU/stratum design variables. It cannot produce state-level
 estimates. Naively unioning it with FARS or MoCo would produce numbers wrong by
 orders of magnitude. Since we need record-level crash data for a contact
 pipeline — not national estimates — CRSS has no role here.
+
+---
+
+## 2026-09-07 — Coordinate-derived IANA timezones
+
+**Decision:** Derive IANA timezone strictly from crash coordinates (using offline
+`timezonefinder` with polygonal fallbacks), never from telephone area codes or state-level defaults.
+
+**Rationale:** TCPA (47 U.S.C. § 227) restricts outbound contact to 8:00 AM – 9:00 PM
+in the recipient's local time zone. Phone area codes frequently do not match physical
+location due to number portability. Furthermore, Texas spans two time zones (Central
+and Mountain in El Paso/Hudspeth counties). Assuming Central time for an El Paso
+lead could trigger a call at 8:05 AM Central (7:05 AM Mountain) — an immediate
+statutory TCPA violation.
+
+---
+
+## 2026-09-07 — Dual-resolution H3 indexing (Res 8 and 9)
+
+**Decision:** Index every geocoded crash at both H3 Resolution 8 (~0.73 km²) and
+Resolution 9 (~0.10 km²).
+
+**Rationale:** Res 8 matches traffic analysis zone (TAZ) and neighborhood boundaries,
+ideal for spatial autocorrelation (Getis-Ord Gi* hot spot analysis). Res 9 isolates
+individual intersections and road segments (<175m edge length), preventing high-risk
+intersections from washing out across broader arterial zones.
+
