@@ -1,8 +1,9 @@
-"""Interactive DuckDB query helper and presentation tool for live demonstrations.
+"""Query the DuckDB database written by run_pipeline.py.
 
 Usage:
-    python query_db.py               # Interactive menu of interviewer queries
-    python query_db.py --sql "..."   # Run a one-liner SQL query directly
+    python query_db.py               # interactive menu of preset queries
+    python query_db.py --preset 3    # run one preset and exit
+    python query_db.py --sql "..."   # run one SQL statement and exit
 """
 
 from __future__ import annotations
@@ -70,7 +71,7 @@ PRESET_QUERIES = {
             c.weather_condition,
             c.road_condition
         FROM fact_crash c
-        JOIN dim_location loc ON c.crash_id = REPLACE(loc.location_id, 'LOC_', '')
+        JOIN dim_location loc ON loc.location_id = 'LOC_' || c.crash_id
         ORDER BY c.crash_id;
         """,
     ),
@@ -82,48 +83,46 @@ PRESET_QUERIES = {
             p.crash_id,
             p.source_system,
             p.contact_eligibility_status,
+            p.lead_score,
+            p.priority_tier,
             s.severity_name,
             p.age,
             loc.nearest_road_name
         FROM fact_party p
         JOIN dim_severity s ON p.injury_severity = s.severity_code
-        JOIN dim_location loc ON p.crash_id = REPLACE(loc.location_id, 'LOC_', '')
-        ORDER BY p.contact_eligibility_status ASC, p.party_id;
+        JOIN dim_location loc ON loc.location_id = 'LOC_' || p.crash_id
+        ORDER BY p.lead_score DESC NULLS LAST, p.party_id;
         """,
     ),
 }
 
 
-def execute_query(conn: duckdb.DuckDBPyConnection, sql: str, title: str = "") -> None:
-    """Print SQL query results formatted as a clean table."""
-    print("\n" + "─" * 75)
+def execute_query(conn: duckdb.DuckDBPyConnection, sql: str, title: str = "") -> bool:
+    """Print the result of ``sql`` as a table. Returns False if DuckDB rejected the query."""
+    print("\n" + "-" * 75)
     if title:
-        print(f"📋 {title}")
-    print("─" * 75)
-    print(f"SQL: {sql.strip()}\n")
+        print(title)
+        print("-" * 75)
     try:
         df = conn.execute(sql).fetchdf()
-        if df.empty:
-            print("   (0 rows returned)")
-        else:
-            print(df.to_string(index=False))
-    except Exception as e:
-        print(f"❌ Error executing query: {e}")
-    print("─" * 75)
+    except duckdb.Error as exc:
+        print(f"Query failed: {exc}")
+        return False
+    print("(0 rows)" if df.empty else df.to_string(index=False))
+    print("-" * 75)
+    return True
 
 
 def interactive_menu(db_path: str) -> None:
     if not Path(db_path).exists():
-        print(f"❌ Database not found at '{db_path}'.")
-        print("💡 Run the pipeline first to generate the database:")
-        print("   python run_pipeline.py\n")
+        print(f"Database not found at '{db_path}'. Run `python run_pipeline.py` first.")
         return
 
     conn = duckdb.connect(db_path, read_only=True)
 
     while True:
         print("\n" + "=" * 60)
-        print("🔍 CRASH ANALYTICS — LIVE DUCKDB QUERY CONSOLE")
+        print("Crash analytics query console")
         print(f"   Database: {db_path}")
         print("=" * 60)
         for k, (title, _) in PRESET_QUERIES.items():
@@ -134,7 +133,6 @@ def interactive_menu(db_path: str) -> None:
 
         choice = input("\nEnter choice [1-5, S, Q]: ").strip()
         if choice.lower() in ("q", "quit", "exit"):
-            print("Exiting query console. Goodbye!")
             break
 
         if choice in PRESET_QUERIES:
@@ -151,17 +149,26 @@ def interactive_menu(db_path: str) -> None:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Query DuckDB Crash Database")
+    parser = argparse.ArgumentParser(description="Query the crash DuckDB database")
     parser.add_argument("--db", default=DEFAULT_DB, help="Path to DuckDB database")
-    parser.add_argument("--sql", help="Run a one-shot SQL query and exit")
+    one_shot = parser.add_mutually_exclusive_group()
+    one_shot.add_argument("--sql", help="Run one SQL statement and exit")
+    one_shot.add_argument(
+        "--preset", choices=sorted(PRESET_QUERIES), help="Run one preset and exit"
+    )
     args = parser.parse_args()
 
-    if args.sql:
-        if not Path(args.db).exists():
-            print(f"❌ Database '{args.db}' not found. Run 'python run_pipeline.py' first.")
-            sys.exit(1)
-        c = duckdb.connect(args.db, read_only=True)
-        execute_query(c, args.sql, "Query Result")
-        c.close()
-    else:
+    if args.sql is None and args.preset is None:
         interactive_menu(args.db)
+        sys.exit(0)
+
+    if not Path(args.db).exists():
+        print(f"Database '{args.db}' not found. Run `python run_pipeline.py` first.")
+        sys.exit(1)
+    title, sql = PRESET_QUERIES[args.preset] if args.preset else ("", args.sql)
+    conn = duckdb.connect(args.db, read_only=True)
+    try:
+        ok = execute_query(conn, sql, title)
+    finally:
+        conn.close()
+    sys.exit(0 if ok else 1)
