@@ -44,7 +44,32 @@ For any jurisdiction permitting telephonic contact:
 
 ---
 
-## 3. Data Architecture & Technology Stack Evaluation
+## 3. Lead Volume by Jurisdiction & Statutory Exclusion Breakdown
+
+Below is the honest daily volume accounting across all three jurisdictions:
+
+### A. Deliverable Lead Volume Table (Daily Run)
+| Jurisdiction / Source | Live Phone Calls / Day | SMS Outreach / Day | Direct Mail Leads / Day | Statutory Decision & State |
+| :--- | :---: | :---: | :---: | :--- |
+| **Texas (TxDOT CRIS)** | **0** | **0** | **0** | **100% Suppressed.** Third-degree felony barratry (Tex. Penal Code § 38.12). |
+| **National (NHTSA FARS)** | **0** | **0** | **0** | **100% Suppressed.** 100% fatal crash victims; ethical and DPPA commercial bar. |
+| **Montgomery Co., MD (Days 1–30)** | **0** | **0** | **0** | **100% Suppressed.** Under mandatory 30-day moratorium (Md. Bus. Occ. & Prof. § 10-605). |
+| **Montgomery Co., MD (Day 31+)** | **0** | **0** | **~8–12 / day** | **Permitted for Direct Mail ONLY.** With required MARPC advertising disclosures. |
+
+### B. Statutory Exclusion Table (By Reason Code)
+| Exclusion Reason Code | Governing Statute / Authority | Impacted Records | Pipeline Action |
+| :--- | :--- | :--- | :--- |
+| `TEX_PENAL_CODE_38_12` | Tex. Penal Code § 38.12 (Barratry) | 100% of Texas records | Hard clamp to `INELIGIBLE` (score = 0.0) |
+| `TEX_TRANSP_CODE_550_065` | Tex. Transp. Code § 550.065 | 100% of Texas records | Suppressed from commercial solicitation |
+| `MD_BUS_OCC_PROF_10_605` | Md. Code, Bus. Occ. & Prof. § 10-605 | 100% of MD live calls/SMS | All telephonic outreach barred |
+| `MD_BUS_OCC_PROF_10_605_30_DAY` | Md. Code, Bus. Occ. & Prof. § 10-605 | 100% of MD records <30 days old | Blocked until Day 31 post-crash |
+| `NHTSA_FARS_FATALITY_ETHICS` | ABA Model Rules / DPPA § 2721 | 100% of FARS records | Suppressed (fatalities only) |
+| `ETHICS_MINOR_PROTECTION` | State Ethics & Privacy Rules | Any party with `age < 18` | Suppressed (minors protected) |
+| `47_CFR_64_1200_C_1` | TCPA Contact Hours | Any attempt outside 08:00–21:00 | Suppressed by coordinate timezone check |
+
+---
+
+## 4. Data Architecture & Technology Stack Evaluation
 
 The architecture follows a modern single-node Lakehouse pattern using **DuckDB + GeoPandas + Dagster + GeoParquet 1.1.0**.
 
