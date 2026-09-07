@@ -70,6 +70,7 @@ def test_census_enrichment():
     assert res is not None
     assert res.county_fips == "24031"
     assert res.state_fips == "24"
+    assert res.state_abbr == "MD"
     assert len(res.geoid) == 11
     assert res.median_household_income is not None
     assert res.median_household_income > 100000

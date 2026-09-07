@@ -25,6 +25,7 @@ import httpx
 class CensusEnrichmentResult:
     """Demographic and geographic profile of crash location."""
     state_fips: str
+    state_abbr: str
     county_fips: str
     county_name: str
     tract_code: str
@@ -147,6 +148,7 @@ def enrich_census_demographics(
     if live_result is not None:
         return CensusEnrichmentResult(
             state_fips=state_fips,
+            state_abbr=meta["state_abbr"],
             county_fips=fips,
             county_name=meta["county_name"],
             tract_code=tract_code,
@@ -159,6 +161,7 @@ def enrich_census_demographics(
 
     return CensusEnrichmentResult(
         state_fips=state_fips,
+        state_abbr=meta["state_abbr"],
         county_fips=fips,
         county_name=meta["county_name"],
         tract_code=tract_code,

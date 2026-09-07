@@ -83,6 +83,8 @@ class FactPartyRecord(BaseModel):
     ejection_status: Optional[str] = None
     contact_eligibility_status: Literal["ELIGIBLE", "INELIGIBLE", "PENDING_REVIEW"] = "PENDING_REVIEW"
     ineligibility_reasons: List[str] = Field(default_factory=list)
+    lead_score: Optional[float] = Field(default=None, ge=0.0, le=100.0)
+    priority_tier: Optional[Literal["HIGH", "MEDIUM", "LOW", "DISQUALIFIED"]] = None
 
     @field_validator("age")
     @classmethod

@@ -105,6 +105,8 @@ CREATE TABLE IF NOT EXISTS fact_party (
     ejection_status VARCHAR,
     contact_eligibility_status VARCHAR DEFAULT 'PENDING_REVIEW',
     ineligibility_reasons VARCHAR[],
+    lead_score DOUBLE,
+    priority_tier VARCHAR,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 """
