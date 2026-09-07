@@ -1,0 +1,60 @@
+# ── Secrets & environment ──
+.env
+.env.*
+!.env.example
+
+# ── Agent rules (local-only, not part of submission) ──
+AGENTS.md
+ASSIGNMENT.md
+
+# ── Raw data & bulk downloads (commit the fetch scripts, not the payload) ──
+data/raw/
+data/downloads/
+data/state/
+*.osm.pbf
+
+# ── Python ──
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+project_venv/
+*.egg
+
+# ── Tool caches, coverage, logs ──
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage/
+*.log
+logs/
+tmp/
+node_modules/
+
+# ── Repo hosting config (kept out of this repository) ──
+.github/
+
+# ── IDE ──
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# ── DuckDB local databases ──
+*.duckdb
+*.duckdb.wal
+
+# ── Dagster local instance storage ──
+.dagster/
+.tmp_dagster_home_*/
+
+# ── Jupyter ──
+.ipynb_checkpoints/

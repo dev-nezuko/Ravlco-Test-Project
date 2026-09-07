@@ -1,0 +1,107 @@
+# Design Decisions
+
+Timestamped log of architectural and design decisions. New entries are appended;
+old entries are never deleted, even when reversed.
+
+---
+
+## 2026-09-07 — Stack selection: DuckDB + GeoPandas + Dagster
+
+**Decision:** Use DuckDB (with `spatial` extension) as the primary analytical
+engine, GeoPandas for geospatial operations, GeoParquet 1.1.0 for storage, and
+Dagster for orchestration.
+
+**Rationale:**
+
+- **DuckDB over Postgres/PostGIS:** At ~10⁵–10⁷ rows across three states, this
+  is single-node territory. DuckDB provides columnar analytics, native Parquet
+  I/O, and the `spatial` extension for geometry — without server setup or
+  operational overhead. The assignment explicitly flags Spark/Sedona as
+  over-engineering at this scale.
+- **GeoPandas over pure-SQL spatial:** Census tract point-in-polygon joins, road
+  network snapping, and H3 indexing are more naturally expressed with Shapely
+  geometries than DuckDB SQL. GeoPandas bridges the gap.
+- **GeoParquet 1.1.0:** Current stable spec. The `bbox` covering column enables
+  row-group pruning. v2.0 is still RC and GeoParquet is incubating OGC, so we
+  target 1.1.0.
+- **Dagster over Airflow/Prefect:** Asset-based model aligns with our
+  bronze→silver→gold→eligibility lineage. Built-in partitioning supports
+  date-range backfill. Lightweight local dev.
+- **Python 3.12:** Broad library compatibility, required by h3 v4.x and
+  timezonefinder 8.x.
+
+**Rejected alternatives:**
+
+- PostgreSQL/PostGIS — unnecessary concurrent serving layer for a batch pipeline.
+- Spark/Sedona — correct escape hatch at national multi-year scale, but
+  over-engineering for three states. Noted as the scale-out path.
+- Airflow — heavier operational burden, DAG-based (not asset-based), less
+  natural for data lineage tracking.
+
+---
+
+## 2026-09-07 — CRSS exclusion
+
+**Decision:** Do not ingest or use NHTSA CRSS data.
+
+**Rationale:** CRSS is a probability sample (~50–60k police-reported crashes)
+with `WEIGHT` and PSU/stratum design variables. It cannot produce state-level
+estimates. Naively unioning it with FARS or MoCo would produce numbers wrong by
+orders of magnitude. Since we need record-level crash data for a contact
+pipeline — not national estimates — CRSS has no role here.
+
+---
+
+## 2026-09-07 — Coordinate-derived IANA timezones
+
+**Decision:** Derive IANA timezone strictly from crash coordinates (using offline
+`timezonefinder` with polygonal fallbacks), never from telephone area codes or state-level defaults.
+
+**Rationale:** TCPA (47 U.S.C. § 227) restricts outbound contact to 8:00 AM – 9:00 PM
+in the recipient's local time zone. Phone area codes frequently do not match physical
+location due to number portability. Furthermore, Texas spans two time zones (Central
+and Mountain in El Paso/Hudspeth counties). Assuming Central time for an El Paso
+lead could trigger a call at 8:05 AM Central (7:05 AM Mountain) — an immediate
+statutory TCPA violation.
+
+---
+
+## 2026-09-07 — Dual-resolution H3 indexing (Res 8 and 9)
+
+**Decision:** Index every geocoded crash at both H3 Resolution 8 (~0.73 km²) and
+Resolution 9 (~0.10 km²).
+
+**Rationale:** Res 8 matches traffic analysis zone (TAZ) and neighborhood boundaries,
+ideal for spatial autocorrelation (Getis-Ord Gi* hot spot analysis). Res 9 isolates
+individual intersections and road segments (<175m edge length), preventing high-risk
+intersections from washing out across broader arterial zones.
+
+---
+
+## 2026-09-07 — Complete suppression of Texas crash data for direct contact
+
+**Decision:** All records originating from Texas (TxDOT CRIS or Texas-located FARS)
+are strictly suppressed from lead generation (`contact_eligibility_status = 'INELIGIBLE'`).
+
+**Rationale:** Under Texas Penal Code § 38.12 (Barratry and Solicitation of Professional
+Employment), soliciting an accident victim or family member within 30 days of a crash,
+or obtaining police crash reports for the purpose of communicating with victims, is
+a third-degree felony. Furthermore, Texas Transportation Code § 550.065 restricts
+crash reports to privileged parties and bars commercial marketing solicitations.
+There is no lawful basis to generate outbound direct contact leads from Texas crash data.
+
+---
+
+## 2026-09-07 — Maryland 30-day moratorium & direct mail restriction
+
+**Decision:** Montgomery County, MD records are suppressed from all live telephone
+and SMS contact at all times. Direct mail contact is strictly barred during the first
+30 calendar days following the collision date.
+
+**Rationale:** Maryland Business Occupations & Professions Code § 10-605 and MARPC
+Rule 19-307.3 prohibit attorney and professional contact of accident victims within
+30 days of the crash. Live telephonic outreach to accident victims is completely
+prohibited under Maryland attorney ethics rules. Only post-day-30 targeted mail
+with conspicuous advertising disclosures is permissible.
+
+
