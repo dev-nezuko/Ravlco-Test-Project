@@ -25,26 +25,36 @@ logger = logging.getLogger(__name__)
 
 # Coordinate sentinels — these are NOT real locations
 COORD_SENTINELS = {
-    77.7777, 77.7778,  # Unknown (common)
-    88.8888, 88.8889,  # Not reported
-    99.9999, 99.9998,  # Blanks / not applicable
-    0.0,               # Some records use 0.0 for unknown
+    77.7777,
+    77.7778,  # Unknown (common)
+    88.8888,
+    88.8889,  # Not reported
+    99.9999,
+    99.9998,  # Blanks / not applicable
+    0.0,  # Some records use 0.0 for unknown
 }
 
 # Tolerance for floating-point comparison
 COORD_SENTINEL_TOLERANCE = 0.001
 
 # Integer sentinel patterns
-AGE_SENTINELS = {998, 999}          # Unknown age
-HOUR_SENTINELS = {99}               # Unknown hour
-MINUTE_SENTINELS = {99}             # Unknown minute
-GENERIC_UNKNOWN_CODES = {7, 8, 9}   # Common 7/8/9-fill for coded fields
+AGE_SENTINELS = {998, 999}  # Unknown age
+HOUR_SENTINELS = {99}  # Unknown hour
+MINUTE_SENTINELS = {99}  # Unknown minute
+GENERIC_UNKNOWN_CODES = {7, 8, 9}  # Common 7/8/9-fill for coded fields
 
 # Fields that use 7/8/9-fill for unknown values
 SEVEN_EIGHT_NINE_FIELDS = [
-    "WEATHER", "LGT_COND", "CF1", "CF2", "CF3",
-    "DRINKING", "DRUGS", "SEX",
-    "DR_DRINK", "SPEEDREL",
+    "WEATHER",
+    "LGT_COND",
+    "CF1",
+    "CF2",
+    "CF3",
+    "DRINKING",
+    "DRUGS",
+    "SEX",
+    "DR_DRINK",
+    "SPEEDREL",
 ]
 
 
@@ -97,8 +107,7 @@ def replace_coordinate_sentinels(
                 record["coord_quality"] = "invalid"
 
     logger.info(
-        "FARS coordinate sentinels: %d replaced, %d valid, %d other "
-        "(total %d)",
+        "FARS coordinate sentinels: %d replaced, %d valid, %d other (total %d)",
         replaced,
         valid,
         len(records) - replaced - valid,
@@ -177,6 +186,7 @@ def detect_restatements(
 
     Returns a summary with counts and sample changed records.
     """
+
     def make_key(record: dict) -> tuple:
         return tuple(record.get(f) for f in key_fields)
 
@@ -196,10 +206,12 @@ def detect_restatements(
         new_r = new_by_key[key]
         diffs = _diff_records(old_r, new_r)
         if diffs:
-            changed.append({
-                "key": key,
-                "changes": diffs,
-            })
+            changed.append(
+                {
+                    "key": key,
+                    "changes": diffs,
+                }
+            )
 
     result = {
         "added_count": len(added),
@@ -246,8 +258,11 @@ def construct_timestamps(
         if all(v is not None for v in [year, month, day, hour, minute]):
             try:
                 dt = datetime(
-                    int(year), int(month), int(day),
-                    int(hour), int(minute),
+                    int(year),
+                    int(month),
+                    int(day),
+                    int(hour),
+                    int(minute),
                 )
                 record["crash_timestamp"] = dt.isoformat()
                 record["timestamp_quality"] = "complete"
@@ -289,10 +304,7 @@ def _is_coord_sentinel(value: Any) -> bool:
         return False
     try:
         v = float(value)
-        return any(
-            abs(v - s) < COORD_SENTINEL_TOLERANCE
-            for s in COORD_SENTINELS
-        )
+        return any(abs(v - s) < COORD_SENTINEL_TOLERANCE for s in COORD_SENTINELS)
     except (ValueError, TypeError):
         return False
 
@@ -305,9 +317,11 @@ def _diff_records(old: dict, new: dict) -> list[dict[str, Any]]:
         old_val = old.get(key)
         new_val = new.get(key)
         if old_val != new_val:
-            diffs.append({
-                "field": key,
-                "old": old_val,
-                "new": new_val,
-            })
+            diffs.append(
+                {
+                    "field": key,
+                    "old": old_val,
+                    "new": new_val,
+                }
+            )
     return diffs

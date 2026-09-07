@@ -14,10 +14,7 @@ Key FARS tables ingested from each year's ZIP:
 
 from __future__ import annotations
 
-from typing import Optional
-
 from pydantic import BaseModel
-
 
 # Known FARS sentinel values for coordinates
 COORD_SENTINELS = {77.7777, 88.8888, 99.9999, 77.7778, 88.8889, 99.9998}
@@ -33,37 +30,37 @@ class FARSAccident(BaseModel):
     Grain: one row per fatal crash, keyed by ``(STATE, ST_CASE)``.
     """
 
-    STATE: int       # FIPS state code
-    ST_CASE: int     # Case number within state-year (natural key component)
-    STATENAME: Optional[str] = None
+    STATE: int  # FIPS state code
+    ST_CASE: int  # Case number within state-year (natural key component)
+    STATENAME: str | None = None
 
     # Temporal
-    YEAR: Optional[int] = None
-    MONTH: Optional[int] = None
-    DAY: Optional[int] = None
-    HOUR: Optional[int] = None    # 99 = unknown
-    MINUTE: Optional[int] = None  # 99 = unknown
+    YEAR: int | None = None
+    MONTH: int | None = None
+    DAY: int | None = None
+    HOUR: int | None = None  # 99 = unknown
+    MINUTE: int | None = None  # 99 = unknown
 
     # Location — SENTINEL VALUES, NOT NULLS
-    LATITUDE: Optional[float] = None   # 77.7777/88.8888/99.9999 = unknown
-    LONGITUD: Optional[float] = None   # Same sentinels (note: LONGITUD not LONGITUDE)
+    LATITUDE: float | None = None  # 77.7777/88.8888/99.9999 = unknown
+    LONGITUD: float | None = None  # Same sentinels (note: LONGITUD not LONGITUDE)
 
     # Severity
-    FATALS: Optional[int] = None
-    PERSONS: Optional[int] = None
-    DRUNK_DR: Optional[int] = None
+    FATALS: int | None = None
+    PERSONS: int | None = None
+    DRUNK_DR: int | None = None
 
     # Road
-    ROUTE: Optional[int] = None
-    TWAY_ID: Optional[str] = None
+    ROUTE: int | None = None
+    TWAY_ID: str | None = None
 
     # Conditions
-    WEATHER: Optional[int] = None  # Code — see FARS Analytical Manual
-    LGT_COND: Optional[int] = None  # Light condition code
-    CF1: Optional[int] = None      # Contributing factor
+    WEATHER: int | None = None  # Code — see FARS Analytical Manual
+    LGT_COND: int | None = None  # Light condition code
+    CF1: int | None = None  # Contributing factor
 
     # County
-    COUNTY: Optional[int] = None
+    COUNTY: int | None = None
 
     model_config = {"extra": "allow"}
 
@@ -81,14 +78,14 @@ class FARSPerson(BaseModel):
     PER_NO: int
 
     # Demographics — sentinel-coded
-    AGE: Optional[int] = None       # 998/999 = unknown
-    SEX: Optional[int] = None       # 1=Male, 2=Female, 8/9=unknown
-    PER_TYP: Optional[int] = None   # Person type code
-    INJ_SEV: Optional[int] = None   # Injury severity (KABCO)
+    AGE: int | None = None  # 998/999 = unknown
+    SEX: int | None = None  # 1=Male, 2=Female, 8/9=unknown
+    PER_TYP: int | None = None  # Person type code
+    INJ_SEV: int | None = None  # Injury severity (KABCO)
 
     # Alcohol/drugs
-    DRINKING: Optional[int] = None
-    DRUGS: Optional[int] = None
+    DRINKING: int | None = None
+    DRUGS: int | None = None
 
     model_config = {"extra": "allow"}
 
@@ -105,13 +102,13 @@ class FARSVehicle(BaseModel):
     VEH_NO: int
 
     # Vehicle
-    MAKE: Optional[int] = None
-    MODEL: Optional[int] = None
-    MOD_YEAR: Optional[int] = None  # 9999 = unknown
-    BODY_TYP: Optional[int] = None
+    MAKE: int | None = None
+    MODEL: int | None = None
+    MOD_YEAR: int | None = None  # 9999 = unknown
+    BODY_TYP: int | None = None
 
     # Driver
-    DR_DRINK: Optional[int] = None
-    SPEEDREL: Optional[int] = None
+    DR_DRINK: int | None = None
+    SPEEDREL: int | None = None
 
     model_config = {"extra": "allow"}

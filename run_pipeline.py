@@ -354,8 +354,10 @@ def run_pipeline(live: bool = False, db_path: str = "data/crash_analytics.duckdb
         crashes = load_crashes(conn, DEMO_CRASHES)
         load_parties(conn, DEMO_PARTIES, crashes, EVALUATION_TIME)
         conn.execute("COMMIT")
-        print(f"Loaded {len(DEMO_CRASHES)} crashes and {len(DEMO_PARTIES)} parties, "
-              f"evaluated at {EVALUATION_TIME.isoformat()} for DIRECT_MAIL.\n")
+        print(
+            f"Loaded {len(DEMO_CRASHES)} crashes and {len(DEMO_PARTIES)} parties, "
+            f"evaluated at {EVALUATION_TIME.isoformat()} for DIRECT_MAIL.\n"
+        )
         print(conn.execute(SUMMARY_SQL).fetchdf().to_string(index=False))
     finally:
         conn.close()
@@ -364,7 +366,9 @@ def run_pipeline(live: bool = False, db_path: str = "data/crash_analytics.duckdb
 if __name__ == "__main__":
     load_dotenv()
     parser = argparse.ArgumentParser(description="Run the Crash-to-Contact demo pipeline")
-    parser.add_argument("--live", action="store_true", help="Also fetch MoCo incidents into data/raw/")
+    parser.add_argument(
+        "--live", action="store_true", help="Also fetch MoCo incidents into data/raw/"
+    )
     parser.add_argument("--db", default="data/crash_analytics.duckdb", help="DuckDB file path")
     args = parser.parse_args()
     run_pipeline(live=args.live, db_path=args.db)

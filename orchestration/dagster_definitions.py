@@ -11,9 +11,7 @@ Lineage:
 
 from __future__ import annotations
 
-import os
-from datetime import datetime, timezone
-from typing import Any, Dict, List
+from typing import Any
 
 try:
     from dagster import (
@@ -26,6 +24,7 @@ try:
         asset,
         define_asset_job,
     )
+
     _HAS_DAGSTER = True
 except ImportError:
     _HAS_DAGSTER = False
@@ -33,9 +32,11 @@ except ImportError:
 
 # Fallback asset decorator if dagster is not installed in local environment
 if not _HAS_DAGSTER:
+
     def asset(*args, **kwargs):
         def decorator(fn):
             return fn
+
         return decorator
 
     class ConfigurableResource:
@@ -44,6 +45,7 @@ if not _HAS_DAGSTER:
 
 class PipelineConfig(ConfigurableResource):
     """Configuration for crash-to-contact orchestration."""
+
     duckdb_path: str = "data/crash_analytics.duckdb"
     bronze_dir: str = "data/bronze"
     state_dir: str = "data/state"
@@ -52,80 +54,88 @@ class PipelineConfig(ConfigurableResource):
 
 # ── Bronze Assets ──────────────────────────────────────────────────────────
 
+
 @asset(group_name="bronze", compute_kind="python")
-def bronze_moco_incidents() -> Dict[str, Any]:
+def bronze_moco_incidents() -> dict[str, Any]:
     """Ingests Montgomery County Socrata bhju-22kf crash incidents."""
     return {"source": "moco", "dataset": "bhju-22kf", "status": "ingested"}
 
 
 @asset(group_name="bronze", compute_kind="python")
-def bronze_moco_drivers() -> Dict[str, Any]:
+def bronze_moco_drivers() -> dict[str, Any]:
     """Ingests Montgomery County Socrata mmzv-x632 drivers dataset."""
     return {"source": "moco", "dataset": "mmzv-x632", "status": "ingested"}
 
 
 @asset(group_name="bronze", compute_kind="python")
-def bronze_txdot_crashes() -> Dict[str, Any]:
+def bronze_txdot_crashes() -> dict[str, Any]:
     """Ingests TxDOT CRIS ArcGIS FeatureServer crash records with OID cursor."""
     return {"source": "txdot", "dataset": "arcgis_featureserver", "status": "ingested"}
 
 
 @asset(group_name="bronze", compute_kind="python")
-def bronze_fars_crashes() -> Dict[str, Any]:
+def bronze_fars_crashes() -> dict[str, Any]:
     """Downloads and extracts NHTSA FARS national annual archives with restatement detection."""
     return {"source": "fars", "dataset": "national_csv_zip", "status": "ingested"}
 
 
 # ── Silver Assets ──────────────────────────────────────────────────────────
 
+
 @asset(group_name="silver", compute_kind="duckdb")
-def silver_moco_cleaned(bronze_moco_incidents, bronze_moco_drivers) -> Dict[str, Any]:
+def silver_moco_cleaned(bronze_moco_incidents, bronze_moco_drivers) -> dict[str, Any]:
     """Applies MoCo coordinate envelope validation, substance abuse harmonization, and grain enforcement."""
     return {"source": "moco", "status": "cleaned", "defects_resolved": 4}
 
 
 @asset(group_name="silver", compute_kind="duckdb")
-def silver_txdot_cleaned(bronze_txdot_crashes) -> Dict[str, Any]:
+def silver_txdot_cleaned(bronze_txdot_crashes) -> dict[str, Any]:
     """Applies TxDOT coordinate precedence, SCD2 amendment versioning, and date parsing."""
     return {"source": "txdot", "status": "cleaned", "defects_resolved": 3}
 
 
 @asset(group_name="silver", compute_kind="duckdb")
-def silver_fars_cleaned(bronze_fars_crashes) -> Dict[str, Any]:
+def silver_fars_cleaned(bronze_fars_crashes) -> dict[str, Any]:
     """Replaces FARS coordinate and integer sentinels with NULL and verifies restatements."""
     return {"source": "fars", "status": "cleaned", "defects_resolved": 3}
 
 
 # ── Gold Assets ───────────────────────────────────────────────────────────
 
+
 @asset(group_name="gold", compute_kind="duckdb")
-def gold_fact_crash(silver_moco_cleaned, silver_txdot_cleaned, silver_fars_cleaned) -> Dict[str, Any]:
+def gold_fact_crash(
+    silver_moco_cleaned, silver_txdot_cleaned, silver_fars_cleaned
+) -> dict[str, Any]:
     """Populates fact_crash star schema table with resolved entity clusters."""
     return {"table": "fact_crash", "status": "loaded"}
 
 
 @asset(group_name="gold", compute_kind="duckdb")
-def gold_fact_party(silver_moco_cleaned, silver_txdot_cleaned, silver_fars_cleaned) -> Dict[str, Any]:
+def gold_fact_party(
+    silver_moco_cleaned, silver_txdot_cleaned, silver_fars_cleaned
+) -> dict[str, Any]:
     """Populates fact_party table with standardized KABCO injury severity."""
     return {"table": "fact_party", "status": "loaded"}
 
 
 @asset(group_name="gold", compute_kind="duckdb")
-def gold_geospatial_enrichment(gold_fact_crash) -> Dict[str, Any]:
+def gold_geospatial_enrichment(gold_fact_crash) -> dict[str, Any]:
     """Enriches fact_crash with Census TIGER GEOID, ACS demographics, H3 res 8/9, and road snap."""
     return {"dimension": "dim_location", "status": "enriched"}
 
 
 # ── Compliance & Leads Assets ──────────────────────────────────────────────
 
+
 @asset(group_name="compliance", compute_kind="python")
-def compliance_eligibility_evaluated(gold_fact_party, gold_geospatial_enrichment) -> Dict[str, Any]:
+def compliance_eligibility_evaluated(gold_fact_party, gold_geospatial_enrichment) -> dict[str, Any]:
     """Evaluates parties against Texas Barratry, Maryland 30-day moratorium, TCPA, and DNC."""
     return {"status": "compliance_evaluated"}
 
 
 @asset(group_name="leads", compute_kind="python")
-def scored_actionable_leads(compliance_eligibility_evaluated) -> Dict[str, Any]:
+def scored_actionable_leads(compliance_eligibility_evaluated) -> dict[str, Any]:
     """Generates prioritized, composite-scored leads and exports safe output."""
     return {"status": "scored", "output_file": "output/sample_leads.csv"}
 

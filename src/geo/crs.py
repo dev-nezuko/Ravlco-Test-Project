@@ -10,11 +10,11 @@ Standard Projections:
 
 from __future__ import annotations
 
-from typing import Optional, Tuple
 import math
 
 try:
     from pyproj import Transformer
+
     _HAS_PYPROJ = True
 except ImportError:
     _HAS_PYPROJ = False
@@ -32,7 +32,7 @@ BOUNDS_CONUS = (24.39, -125.00, 49.38, -66.93)
 
 
 def is_in_bounding_box(
-    lat: Optional[float], lon: Optional[float], bounds: Tuple[float, float, float, float]
+    lat: float | None, lon: float | None, bounds: tuple[float, float, float, float]
 ) -> bool:
     """Check whether a (lat, lon) coordinate is within specified bounding box."""
     if lat is None or lon is None:
@@ -43,16 +43,14 @@ def is_in_bounding_box(
 
 def reproject_point(
     lat: float, lon: float, from_epsg: int = WGS84_EPSG, to_epsg: int = CONUS_ALBERS_EPSG
-) -> Tuple[float, float]:
+) -> tuple[float, float]:
     """Reproject a point from one CRS to another.
 
     Returns (x, y) coordinates in target CRS units (typically meters).
     Falls back to spherical approximation if pyproj is unavailable.
     """
     if _HAS_PYPROJ:
-        transformer = Transformer.from_crs(
-            f"EPSG:{from_epsg}", f"EPSG:{to_epsg}", always_xy=True
-        )
+        transformer = Transformer.from_crs(f"EPSG:{from_epsg}", f"EPSG:{to_epsg}", always_xy=True)
         x, y = transformer.transform(lon, lat)
         return x, y
 

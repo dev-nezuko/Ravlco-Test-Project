@@ -8,7 +8,6 @@ from src.transforms.txdot_silver import (
     resolve_coordinates,
 )
 
-
 # ── Fixtures ─────────────────────────────────────────────────────────────
 
 
@@ -20,8 +19,10 @@ def records_with_competing_coords():
         {
             "attributes": {
                 "crash_id": 1,
-                "latitude": 30.2672, "longitude": -97.7431,
-                "rpt_latitude": 30.2670, "rpt_longitude": -97.7430,
+                "latitude": 30.2672,
+                "longitude": -97.7431,
+                "rpt_latitude": 30.2670,
+                "rpt_longitude": -97.7430,
                 "located_fl": "Y",
             }
         },
@@ -29,8 +30,10 @@ def records_with_competing_coords():
         {
             "attributes": {
                 "crash_id": 2,
-                "latitude": 30.2672, "longitude": -97.7431,
-                "rpt_latitude": 29.7604, "rpt_longitude": -95.3698,  # Houston vs Austin
+                "latitude": 30.2672,
+                "longitude": -97.7431,
+                "rpt_latitude": 29.7604,
+                "rpt_longitude": -95.3698,  # Houston vs Austin
                 "located_fl": "Y",
             }
         },
@@ -38,8 +41,10 @@ def records_with_competing_coords():
         {
             "attributes": {
                 "crash_id": 3,
-                "latitude": 32.7767, "longitude": -96.7970,
-                "rpt_latitude": None, "rpt_longitude": None,
+                "latitude": 32.7767,
+                "longitude": -96.7970,
+                "rpt_latitude": None,
+                "rpt_longitude": None,
                 "located_fl": "Y",
             }
         },
@@ -47,8 +52,10 @@ def records_with_competing_coords():
         {
             "attributes": {
                 "crash_id": 4,
-                "latitude": None, "longitude": None,
-                "rpt_latitude": 29.4241, "rpt_longitude": -98.4936,
+                "latitude": None,
+                "longitude": None,
+                "rpt_latitude": 29.4241,
+                "rpt_longitude": -98.4936,
                 "located_fl": "N",
             }
         },
@@ -56,8 +63,10 @@ def records_with_competing_coords():
         {
             "attributes": {
                 "crash_id": 5,
-                "latitude": None, "longitude": None,
-                "rpt_latitude": None, "rpt_longitude": None,
+                "latitude": None,
+                "longitude": None,
+                "rpt_latitude": None,
+                "rpt_longitude": None,
                 "located_fl": "N",
             }
         },
@@ -121,7 +130,9 @@ class TestSCD2Amendments:
     def test_amended_record_creates_new_version(self):
         """An amended record supersedes the existing version."""
         existing = {
-            200: {"attributes": {"crash_id": 200, "death_cnt": 0, "version": 1, "is_current": True}},
+            200: {
+                "attributes": {"crash_id": 200, "death_cnt": 0, "version": 1, "is_current": True}
+            },
         }
         new_records = [
             {"attributes": {"crash_id": 200, "death_cnt": 1, "amend_supp_fl": "Y"}},

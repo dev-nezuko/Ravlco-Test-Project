@@ -6,8 +6,8 @@ all federal and state statutory gates, recording comprehensive audit trails.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Tuple
+from datetime import UTC, datetime
+from typing import Any
 
 from src.compliance.rules.barratry import (
     MarylandLiveContactBarratryRule,
@@ -56,12 +56,12 @@ def build_standard_compliance_engine() -> ComplianceEngine:
 
 
 def evaluate_party_eligibility(
-    party: Dict[str, Any],
-    crash: Dict[str, Any],
+    party: dict[str, Any],
+    crash: dict[str, Any],
     channel: ContactChannel = ContactChannel.DIRECT_MAIL,
-    evaluation_time: Optional[datetime] = None,
-    engine: Optional[ComplianceEngine] = None,
-) -> Tuple[str, List[str]]:
+    evaluation_time: datetime | None = None,
+    engine: ComplianceEngine | None = None,
+) -> tuple[str, list[str]]:
     """Evaluate a party for contact eligibility.
 
     Parameters
@@ -84,7 +84,7 @@ def evaluate_party_eligibility(
         ineligibility_reasons: List of statutory citation codes
     """
     eval_engine = engine or build_standard_compliance_engine()
-    eval_time = evaluation_time or datetime.now(timezone.utc)
+    eval_time = evaluation_time or datetime.now(UTC)
 
     # Infer state from source or crash
     source = party.get("source_system", crash.get("source_system", "unknown"))

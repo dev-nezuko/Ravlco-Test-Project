@@ -10,18 +10,19 @@ distribution profiles to detect:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Set
+from typing import Any
 
 
 @dataclass
 class DriftReport:
     """Report of detected structural or statistical drifts."""
+
     dataset_name: str
     has_drift: bool
-    schema_anomalies: List[str] = field(default_factory=list)
-    volume_anomalies: List[str] = field(default_factory=list)
-    null_rate_anomalies: List[str] = field(default_factory=list)
-    unmapped_categories: List[str] = field(default_factory=list)
+    schema_anomalies: list[str] = field(default_factory=list)
+    volume_anomalies: list[str] = field(default_factory=list)
+    null_rate_anomalies: list[str] = field(default_factory=list)
+    unmapped_categories: list[str] = field(default_factory=list)
 
     @property
     def total_anomalies(self) -> int:
@@ -36,25 +37,26 @@ class DriftReport:
 @dataclass
 class SchemaBaseline:
     """Baseline expectations for a dataset."""
-    expected_columns: Set[str]
-    required_columns: Set[str]
-    expected_types: Dict[str, str] = field(default_factory=dict)
-    known_categories: Dict[str, Set[str]] = field(default_factory=dict)
-    max_null_rates: Dict[str, float] = field(default_factory=dict)
+
+    expected_columns: set[str]
+    required_columns: set[str]
+    expected_types: dict[str, str] = field(default_factory=dict)
+    known_categories: dict[str, set[str]] = field(default_factory=dict)
+    max_null_rates: dict[str, float] = field(default_factory=dict)
     expected_min_rows: int = 1
 
 
 def detect_drift(
     dataset_name: str,
-    records: List[Dict[str, Any]],
+    records: list[dict[str, Any]],
     baseline: SchemaBaseline,
-    historical_row_count: Optional[int] = None,
+    historical_row_count: int | None = None,
 ) -> DriftReport:
     """Evaluate batch of raw records against schema and distribution baseline."""
-    schema_anomalies: List[str] = []
-    volume_anomalies: List[str] = []
-    null_rate_anomalies: List[str] = []
-    unmapped_categories: List[str] = []
+    schema_anomalies: list[str] = []
+    volume_anomalies: list[str] = []
+    null_rate_anomalies: list[str] = []
+    unmapped_categories: list[str] = []
 
     n_records = len(records)
 
@@ -97,7 +99,9 @@ def detect_drift(
     # Null rate and categorical domain checks
     for col in baseline.required_columns:
         if col in sample_cols:
-            null_count = sum(1 for r in records if r.get(col) is None or str(r.get(col)).strip() == "")
+            null_count = sum(
+                1 for r in records if r.get(col) is None or str(r.get(col)).strip() == ""
+            )
             null_rate = null_count / n_records
             max_allowed = baseline.max_null_rates.get(col, 0.05)
             if null_rate > max_allowed:

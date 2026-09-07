@@ -11,8 +11,6 @@ are integers without lookup labels. See DATA_QUALITY.md.
 
 from __future__ import annotations
 
-from typing import Optional
-
 from pydantic import BaseModel
 
 
@@ -24,37 +22,37 @@ class TxDOTCrash(BaseModel):
     """
 
     OBJECTID: int
-    crash_id: Optional[int] = None
+    crash_id: int | None = None
 
     # Dates — stored as strings in the source (esriFieldTypeString)
-    crash_date: Optional[str] = None
-    crash_time: Optional[str] = None
+    crash_date: str | None = None
+    crash_time: str | None = None
 
     # Two competing coordinate pairs (see DATA_QUALITY.md):
     # Officer-reported (frequently null)
-    rpt_latitude: Optional[float] = None
-    rpt_longitude: Optional[float] = None
+    rpt_latitude: float | None = None
+    rpt_longitude: float | None = None
     # CRIS-derived (more complete)
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
+    latitude: float | None = None
+    longitude: float | None = None
 
-    located_fl: Optional[str] = None  # "Y"/"N" — whether CRIS geocoded
+    located_fl: str | None = None  # "Y"/"N" — whether CRIS geocoded
 
     # Severity and counts
-    crash_sev_id: Optional[int] = None  # Integer code, no label
-    tot_injry_cnt: Optional[int] = None
-    death_cnt: Optional[int] = None
+    crash_sev_id: int | None = None  # Integer code, no label
+    tot_injry_cnt: int | None = None
+    death_cnt: int | None = None
 
     # Flags
-    bicyclist_involved_fl: Optional[str] = None  # Only ~14,535 of 3.09M are "Y"
-    amend_supp_fl: Optional[str] = None  # Amended/supplemental report flag (SCD2 trigger)
+    bicyclist_involved_fl: str | None = None  # Only ~14,535 of 3.09M are "Y"
+    amend_supp_fl: str | None = None  # Amended/supplemental report flag (SCD2 trigger)
 
     # Road
-    street_name: Optional[str] = None
-    speed_limit: Optional[int] = None
+    street_name: str | None = None
+    speed_limit: int | None = None
 
     # County / city codes (integer IDs)
-    rpt_county_id: Optional[int] = None
-    rpt_city_id: Optional[int] = None
+    rpt_county_id: int | None = None
+    rpt_city_id: int | None = None
 
     model_config = {"extra": "allow"}  # ~190 columns total; we model key ones

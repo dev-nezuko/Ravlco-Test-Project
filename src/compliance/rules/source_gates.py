@@ -17,6 +17,7 @@ class DPPAGate(ComplianceRule):
     Prohibits obtaining or using personal information derived from state
     motor vehicle department records for commercial solicitation without express consent.
     """
+
     rule_id = "DPPA_18_USC_2721"
     citation = "18_USC_2721"
     description = "Driver's Privacy Protection Act commercial solicitation bar"
@@ -40,6 +41,7 @@ class TexasCrashReportGate(ComplianceRule):
     Accident reports released by TxDOT or law enforcement agencies are privileged
     and confidential. Commercial marketing solicitation using these records is unlawful.
     """
+
     rule_id = "TX_TRANSP_550_065"
     citation = "TEX_TRANSP_CODE_550_065"
     description = "Texas crash report commercial solicitation prohibition"
@@ -61,6 +63,7 @@ class FARSFatalityGate(ComplianceRule):
     NHTSA FARS contains only fatal crashes (Killed parties). Direct marketing
     to deceased persons or grieving families is prohibited under state ethics rules.
     """
+
     rule_id = "FARS_FATALITY_GATE"
     citation = "NHTSA_FARS_FATALITY_ETHICS"
     description = "Prohibition of direct solicitation to FARS fatal crash victims"

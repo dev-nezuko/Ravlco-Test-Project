@@ -14,7 +14,6 @@ from src.transforms.moco_silver import (
     validate_driver_grain,
 )
 
-
 # ── Fixtures: synthetic data mimicking real defects ──────────────────────
 
 
@@ -23,13 +22,33 @@ def raw_incidents_with_bad_coords():
     """Incidents with coordinates outside Montgomery County."""
     return [
         # Valid: inside MoCo
-        {"report_number": "R001", "latitude": 39.1, "longitude": -77.2, "crash_date_time": "2024-01-15"},
+        {
+            "report_number": "R001",
+            "latitude": 39.1,
+            "longitude": -77.2,
+            "crash_date_time": "2024-01-15",
+        },
         # Defect: ~150 miles away (Philadelphia area)
-        {"report_number": "R002", "latitude": 39.95, "longitude": -75.17, "crash_date_time": "2024-01-16"},
+        {
+            "report_number": "R002",
+            "latitude": 39.95,
+            "longitude": -75.17,
+            "crash_date_time": "2024-01-16",
+        },
         # Defect: in Florida
-        {"report_number": "R003", "latitude": 25.76, "longitude": -80.19, "crash_date_time": "2024-01-17"},
+        {
+            "report_number": "R003",
+            "latitude": 25.76,
+            "longitude": -80.19,
+            "crash_date_time": "2024-01-17",
+        },
         # Valid: near border (Rockville)
-        {"report_number": "R004", "latitude": 39.08, "longitude": -77.15, "crash_date_time": "2024-01-18"},
+        {
+            "report_number": "R004",
+            "latitude": 39.08,
+            "longitude": -77.15,
+            "crash_date_time": "2024-01-18",
+        },
     ]
 
 
@@ -38,18 +57,63 @@ def raw_drivers_mixed_substance():
     """Drivers with mixed old/new substance abuse dictionary."""
     return [
         # Old scheme (pre-2024)
-        {"report_number": "R001", "person_id": "P1", "driver_substance_abuse": "NONE DETECTED", "crash_date_time": "2023-06-01"},
-        {"report_number": "R002", "person_id": "P1", "driver_substance_abuse": "ALCOHOL PRESENT", "crash_date_time": "2023-07-01"},
+        {
+            "report_number": "R001",
+            "person_id": "P1",
+            "driver_substance_abuse": "NONE DETECTED",
+            "crash_date_time": "2023-06-01",
+        },
+        {
+            "report_number": "R002",
+            "person_id": "P1",
+            "driver_substance_abuse": "ALCOHOL PRESENT",
+            "crash_date_time": "2023-07-01",
+        },
         # New scheme (post-2024)
-        {"report_number": "R003", "person_id": "P1", "driver_substance_abuse": "Not Suspect of Alcohol Use, Not Suspect of Drug Use", "crash_date_time": "2024-03-01"},
-        {"report_number": "R004", "person_id": "P1", "driver_substance_abuse": "Suspected Alcohol Use, Not Suspect of Drug Use", "crash_date_time": "2024-04-01"},
+        {
+            "report_number": "R003",
+            "person_id": "P1",
+            "driver_substance_abuse": "Not Suspect of Alcohol Use, Not Suspect of Drug Use",
+            "crash_date_time": "2024-03-01",
+        },
+        {
+            "report_number": "R004",
+            "person_id": "P1",
+            "driver_substance_abuse": "Suspected Alcohol Use, Not Suspect of Drug Use",
+            "crash_date_time": "2024-04-01",
+        },
         # Overlap window (Jan 2024) — both schemes coexist
-        {"report_number": "R005", "person_id": "P1", "driver_substance_abuse": "NONE DETECTED", "crash_date_time": "2024-01-02"},
-        {"report_number": "R006", "person_id": "P1", "driver_substance_abuse": "Not Suspect of Alcohol Use, Not Suspect of Drug Use", "crash_date_time": "2024-01-03"},
+        {
+            "report_number": "R005",
+            "person_id": "P1",
+            "driver_substance_abuse": "NONE DETECTED",
+            "crash_date_time": "2024-01-02",
+        },
+        {
+            "report_number": "R006",
+            "person_id": "P1",
+            "driver_substance_abuse": "Not Suspect of Alcohol Use, Not Suspect of Drug Use",
+            "crash_date_time": "2024-01-03",
+        },
         # Null spellings
-        {"report_number": "R007", "person_id": "P1", "driver_substance_abuse": "UNKNOWN", "crash_date_time": "2023-05-01"},
-        {"report_number": "R008", "person_id": "P1", "driver_substance_abuse": None, "crash_date_time": "2023-04-01"},
-        {"report_number": "R009", "person_id": "P1", "driver_substance_abuse": "N/A", "crash_date_time": "2023-03-01"},
+        {
+            "report_number": "R007",
+            "person_id": "P1",
+            "driver_substance_abuse": "UNKNOWN",
+            "crash_date_time": "2023-05-01",
+        },
+        {
+            "report_number": "R008",
+            "person_id": "P1",
+            "driver_substance_abuse": None,
+            "crash_date_time": "2023-04-01",
+        },
+        {
+            "report_number": "R009",
+            "person_id": "P1",
+            "driver_substance_abuse": "N/A",
+            "crash_date_time": "2023-03-01",
+        },
     ]
 
 
@@ -64,7 +128,11 @@ def incidents_and_drivers_with_disagreement():
     drivers = [
         {"report_number": "R001", "person_id": "P1", "crash_date_time": "2024-01-01"},
         {"report_number": "R002", "person_id": "P1", "crash_date_time": "2024-01-02"},
-        {"report_number": "R004", "person_id": "P1", "crash_date_time": "2024-01-04"},  # Drivers-only
+        {
+            "report_number": "R004",
+            "person_id": "P1",
+            "crash_date_time": "2024-01-04",
+        },  # Drivers-only
     ]
     return incidents, drivers
 
@@ -114,7 +182,11 @@ class TestSubstanceAbuse:
 
     def test_raw_data_has_mixed_schemes(self, raw_drivers_mixed_substance):
         """The defect exists: both old and new schemes are present."""
-        values = [r["driver_substance_abuse"] for r in raw_drivers_mixed_substance if r["driver_substance_abuse"]]
+        values = [
+            r["driver_substance_abuse"]
+            for r in raw_drivers_mixed_substance
+            if r["driver_substance_abuse"]
+        ]
         has_old = any(v == v.upper() and v not in {"N/A", "UNKNOWN"} for v in values if v)
         has_new = any("," in v for v in values if v)
         assert has_old, "Expected old-scheme (CAPS) values"
@@ -194,8 +266,8 @@ class TestReportNumberDisagreement:
         result = quantify_report_number_disagreement(incidents, drivers)
 
         assert result["incidents_only"] == 1  # R003
-        assert result["drivers_only"] == 1    # R004
-        assert result["shared"] == 2          # R001, R002
+        assert result["drivers_only"] == 1  # R004
+        assert result["shared"] == 2  # R001, R002
 
 
 # ── Test 4: Grain enforcement ───────────────────────────────────────────
@@ -208,7 +280,11 @@ class TestGrainEnforcement:
         """Duplicate report_numbers in incidents are resolved."""
         incidents = [
             {"report_number": "R001", "crash_date_time": "2024-01-01T10:00:00", "weather": "CLEAR"},
-            {"report_number": "R001", "crash_date_time": "2024-01-01T10:00:00", "weather": "RAIN"},  # Duplicate
+            {
+                "report_number": "R001",
+                "crash_date_time": "2024-01-01T10:00:00",
+                "weather": "RAIN",
+            },  # Duplicate
             {"report_number": "R002", "crash_date_time": "2024-01-02T11:00:00", "weather": "CLEAR"},
         ]
         result = enforce_crash_grain(incidents)

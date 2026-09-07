@@ -17,11 +17,12 @@ KABCO Standard Scale:
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 class KABCOSeverity(str, Enum):
     """Standardized KABCO injury severity levels."""
+
     FATAL = "K"
     SUSPECTED_SERIOUS = "A"
     SUSPECTED_MINOR = "B"
@@ -57,7 +58,7 @@ class KABCOSeverity(str, Enum):
 
 # ── Montgomery County, MD mapping ──────────────────────────────────────────
 # MoCo Incident/Driver table injury_severity strings:
-MOCO_SEVERITY_MAP: Dict[str, KABCOSeverity] = {
+MOCO_SEVERITY_MAP: dict[str, KABCOSeverity] = {
     "FATAL INJURY": KABCOSeverity.FATAL,
     "FATALITY": KABCOSeverity.FATAL,
     "FATAL": KABCOSeverity.FATAL,
@@ -83,7 +84,7 @@ MOCO_SEVERITY_MAP: Dict[str, KABCOSeverity] = {
 # 4 = Possible Injury (C)
 # 5 = Non-injury (O)
 # 0 / 99 = Unknown (U)
-TXDOT_SEVERITY_CODE_MAP: Dict[Any, KABCOSeverity] = {
+TXDOT_SEVERITY_CODE_MAP: dict[Any, KABCOSeverity] = {
     1: KABCOSeverity.FATAL,
     "1": KABCOSeverity.FATAL,
     "K": KABCOSeverity.FATAL,
@@ -126,7 +127,7 @@ TXDOT_SEVERITY_CODE_MAP: Dict[Any, KABCOSeverity] = {
 # 5 = Injured, Severity Unknown (U)
 # 6 = Died Prior to Crash (Excluded or U)
 # 9 = Unknown (U)
-FARS_INJ_SEV_MAP: Dict[Any, KABCOSeverity] = {
+FARS_INJ_SEV_MAP: dict[Any, KABCOSeverity] = {
     4: KABCOSeverity.FATAL,
     "4": KABCOSeverity.FATAL,
     "K": KABCOSeverity.FATAL,

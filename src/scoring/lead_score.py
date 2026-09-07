@@ -17,29 +17,30 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from datetime import UTC, datetime
+from typing import Any
 
 
 @dataclass
 class LeadScoreResult:
     """Detailed breakdown of lead priority score."""
+
     party_id: str
     crash_id: str
     composite_score: float  # 0.0 - 100.0
-    priority_tier: str      # 'HIGH', 'MEDIUM', 'LOW', 'DISQUALIFIED'
+    priority_tier: str  # 'HIGH', 'MEDIUM', 'LOW', 'DISQUALIFIED'
     severity_points: float
     dynamics_points: float
     vulnerable_user_points: float
     spatial_risk_points: float
     recency_points: float
     is_actionable: bool
-    score_factors: List[str] = field(default_factory=list)
-    disqualification_reasons: List[str] = field(default_factory=list)
+    score_factors: list[str] = field(default_factory=list)
+    disqualification_reasons: list[str] = field(default_factory=list)
 
 
 def calculate_recency_points(
-    crash_timestamp: Optional[datetime],
+    crash_timestamp: datetime | None,
     eval_timestamp: datetime,
     max_points: float = 10.0,
     half_life_days: float = 45.0,
@@ -60,10 +61,10 @@ def calculate_recency_points(
 
 
 def score_lead(
-    party: Dict[str, Any],
-    crash: Dict[str, Any],
-    spatial_hotspot_p_val: Optional[float] = None,
-    evaluation_time: Optional[datetime] = None,
+    party: dict[str, Any],
+    crash: dict[str, Any],
+    spatial_hotspot_p_val: float | None = None,
+    evaluation_time: datetime | None = None,
 ) -> LeadScoreResult:
     """Calculate composite lead score and priority tier for a party.
 
@@ -80,7 +81,7 @@ def score_lead(
     """
     party_id = party.get("party_id", "UNKNOWN")
     crash_id = crash.get("crash_id", "UNKNOWN")
-    eval_time = evaluation_time or datetime.now(timezone.utc)
+    eval_time = evaluation_time or datetime.now(UTC)
 
     # Compliance Hard Gate
     eligibility_status = party.get("contact_eligibility_status", "PENDING_REVIEW")
@@ -102,7 +103,7 @@ def score_lead(
             disqualification_reasons=ineligibility_reasons,
         )
 
-    score_factors: List[str] = []
+    score_factors: list[str] = []
 
     # 1. Severity Points (up to 40)
     sev = party.get("injury_severity", crash.get("severity_kabc0", "U"))
@@ -133,7 +134,11 @@ def score_lead(
     # 3. Vulnerable Road User (up to 15)
     vulnerable_user_points = 0.0
     ptype = str(party.get("person_type", "")).upper()
-    if ptype in ("PEDESTRIAN", "BICYCLIST") or crash.get("is_pedestrian_involved") or crash.get("is_bicyclist_involved"):
+    if (
+        ptype in ("PEDESTRIAN", "BICYCLIST")
+        or crash.get("is_pedestrian_involved")
+        or crash.get("is_bicyclist_involved")
+    ):
         vulnerable_user_points = 15.0
         score_factors.append("VULNERABLE_ROAD_USER (+15)")
 
@@ -154,7 +159,11 @@ def score_lead(
 
     # Composite Sum
     total = round(
-        severity_points + dynamics_points + vulnerable_user_points + spatial_risk_points + recency_points,
+        severity_points
+        + dynamics_points
+        + vulnerable_user_points
+        + spatial_risk_points
+        + recency_points,
         1,
     )
     composite_score = min(100.0, max(0.0, total))

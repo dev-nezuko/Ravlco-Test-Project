@@ -1,14 +1,13 @@
 """Tests for lead qualification scoring and spatial autocorrelation (Getis-Ord Gi*, LISA)."""
 
-from datetime import datetime, timedelta, timezone
-import pytest
+from datetime import UTC, datetime, timedelta
 
 from src.analysis.spatial import compute_getis_ord_gi, compute_local_morans_i
 from src.scoring.lead_score import calculate_recency_points, score_lead
 
 
 def test_lead_scoring_eligible_high_priority():
-    t_crash = datetime(2024, 6, 1, 10, 0, tzinfo=timezone.utc)
+    t_crash = datetime(2024, 6, 1, 10, 0, tzinfo=UTC)
     eval_time = t_crash + timedelta(days=35)  # Day 35
 
     crash = {
@@ -58,7 +57,7 @@ def test_lead_scoring_compliance_hard_gate():
 
 
 def test_recency_decay():
-    t_crash = datetime(2024, 1, 1, tzinfo=timezone.utc)
+    t_crash = datetime(2024, 1, 1, tzinfo=UTC)
     # Day 15 (blackout) -> 0 pts
     assert calculate_recency_points(t_crash, t_crash + timedelta(days=15)) == 0.0
 

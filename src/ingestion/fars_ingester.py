@@ -31,8 +31,7 @@ logger = logging.getLogger(__name__)
 # ── Constants ────────────────────────────────────────────────────────────
 
 FARS_URL_TEMPLATE = (
-    "https://static.nhtsa.gov/nhtsa/downloads/FARS/"
-    "{year}/National/FARS{year}NationalCSV.zip"
+    "https://static.nhtsa.gov/nhtsa/downloads/FARS/{year}/National/FARS{year}NationalCSV.zip"
 )
 
 # We focus on recent years relevant to a contact pipeline.
@@ -172,9 +171,7 @@ def _extract_zip(zip_path: Path, extract_dir: Path) -> list[str]:
                 extracted.append(member)
                 logger.debug("Extracted %s → %s", member, extract_dir)
 
-    logger.info(
-        "Extracted %d CSV files from %s", len(extracted), zip_path.name
-    )
+    logger.info("Extracted %d CSV files from %s", len(extracted), zip_path.name)
     return extracted
 
 

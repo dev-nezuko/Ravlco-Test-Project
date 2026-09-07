@@ -10,24 +10,26 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Set, Tuple
+
 from src.geo.h3_index import get_k_ring
 
 
 @dataclass
 class HotspotResult:
     """Statistical significance of an H3 cell crash cluster."""
+
     h3_index: str
     observed_value: float
     gi_z_score: float
     p_value: float
     cluster_type: str  # 'HOTSPOT', 'COLDSPOT', 'NOT_SIGNIFICANT'
-    confidence_level: Optional[str] = None  # '99%', '95%', '90%'
+    confidence_level: str | None = None  # '99%', '95%', '90%'
 
 
 @dataclass
 class LISAResult:
     """Local Moran's I spatial association category."""
+
     h3_index: str
     moran_i: float
     z_score: float
@@ -36,9 +38,9 @@ class LISAResult:
 
 
 def compute_getis_ord_gi(
-    cell_values: Dict[str, float],
+    cell_values: dict[str, float],
     k_ring_distance: int = 1,
-) -> Dict[str, HotspotResult]:
+) -> dict[str, HotspotResult]:
     """Compute Getis-Ord Gi* statistic for H3 cells.
 
     Gi* evaluates whether high or low values cluster spatially by comparing
@@ -66,7 +68,7 @@ def compute_getis_ord_gi(
             for h3_id, val in cell_values.items()
         }
 
-    results: Dict[str, HotspotResult] = {}
+    results: dict[str, HotspotResult] = {}
 
     for h3_id, val in cell_values.items():
         # Get neighbors including self (Gi* includes focal point)
@@ -78,7 +80,7 @@ def compute_getis_ord_gi(
 
         # Gi* denominator components
         s1_i = w_i  # For binary weights, sum(w_ij^2) == sum(w_ij)
-        denom_radicand = (n * s1_i - (w_i ** 2)) / (n - 1)
+        denom_radicand = (n * s1_i - (w_i**2)) / (n - 1)
 
         if denom_radicand <= 0:
             z_score = 0.0
@@ -118,9 +120,9 @@ def compute_getis_ord_gi(
 
 
 def compute_local_morans_i(
-    cell_values: Dict[str, float],
+    cell_values: dict[str, float],
     k_ring_distance: int = 1,
-) -> Dict[str, LISAResult]:
+) -> dict[str, LISAResult]:
     """Compute Local Moran's I (LISA) for detecting spatial clusters and outliers.
 
     Quadrants:
@@ -131,27 +133,20 @@ def compute_local_morans_i(
     """
     n = len(cell_values)
     if n < 4:
-        return {
-            h3_id: LISAResult(h3_id, 0.0, 0.0, 1.0, "Not-Significant")
-            for h3_id in cell_values
-        }
+        return {h3_id: LISAResult(h3_id, 0.0, 0.0, 1.0, "Not-Significant") for h3_id in cell_values}
 
     vals = list(cell_values.values())
     x_bar = sum(vals) / n
     m2 = sum((x - x_bar) ** 2 for x in vals) / n
 
     if m2 < 1e-6:
-        return {
-            h3_id: LISAResult(h3_id, 0.0, 0.0, 1.0, "Not-Significant")
-            for h3_id in cell_values
-        }
+        return {h3_id: LISAResult(h3_id, 0.0, 0.0, 1.0, "Not-Significant") for h3_id in cell_values}
 
-    results: Dict[str, LISAResult] = {}
+    results: dict[str, LISAResult] = {}
 
     for h3_id, val in cell_values.items():
         neighbors = [
-            nb for nb in get_k_ring(h3_id, k=k_ring_distance)
-            if nb in cell_values and nb != h3_id
+            nb for nb in get_k_ring(h3_id, k=k_ring_distance) if nb in cell_values and nb != h3_id
         ]
         if not neighbors:
             results[h3_id] = LISAResult(h3_id, 0.0, 0.0, 1.0, "Not-Significant")

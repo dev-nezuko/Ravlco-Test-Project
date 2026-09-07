@@ -8,7 +8,8 @@ Authorities:
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import timedelta
+
 from src.compliance.ruleset import (
     ComplianceRule,
     ContactChannel,
@@ -23,12 +24,17 @@ class TCPAHoursRule(ComplianceRule):
 
     Authority: 47 CFR § 64.1200(c)(1).
     """
+
     rule_id = "TCPA_CALLING_HOURS"
     citation = "47_CFR_64_1200_C_1"
     description = "TCPA permitted contact hours (08:00 - 21:00 recipient local time)"
 
     def evaluate(self, ctx: PartyEvaluationContext) -> RuleVerdict:
-        if ctx.channel in (ContactChannel.LIVE_CALL, ContactChannel.AUTOMATED_CALL, ContactChannel.SMS):
+        if ctx.channel in (
+            ContactChannel.LIVE_CALL,
+            ContactChannel.AUTOMATED_CALL,
+            ContactChannel.SMS,
+        ):
             tz_str = ctx.recipient_timezone or "America/New_York"
             local_dt = get_local_datetime(ctx.evaluation_timestamp, tz_str)
 
@@ -40,7 +46,9 @@ class TCPAHoursRule(ComplianceRule):
                     reason=f"Current recipient local time ({local_dt.strftime('%H:%M %Z')}) is outside TCPA permitted window (08:00-21:00)",
                 )
 
-        return RuleVerdict(self.rule_id, True, self.citation, "Within statutory contact hours or mail")
+        return RuleVerdict(
+            self.rule_id, True, self.citation, "Within statutory contact hours or mail"
+        )
 
 
 class DNCRegistryRule(ComplianceRule):
@@ -48,12 +56,17 @@ class DNCRegistryRule(ComplianceRule):
 
     Authority: 47 CFR § 64.1200(c)(2). Scrub must be within trailing 31 days.
     """
+
     rule_id = "DNC_REGISTRY_CHECK"
     citation = "47_CFR_64_1200_C_2"
     description = "National Do Not Call Registry scrubbing"
 
     def evaluate(self, ctx: PartyEvaluationContext) -> RuleVerdict:
-        if ctx.channel in (ContactChannel.LIVE_CALL, ContactChannel.AUTOMATED_CALL, ContactChannel.SMS):
+        if ctx.channel in (
+            ContactChannel.LIVE_CALL,
+            ContactChannel.AUTOMATED_CALL,
+            ContactChannel.SMS,
+        ):
             if ctx.is_on_dnc_registry:
                 return RuleVerdict(
                     rule_id=self.rule_id,
@@ -80,12 +93,17 @@ class ReassignedNumbersRule(ComplianceRule):
 
     Authority: FCC Order 18-177.
     """
+
     rule_id = "RND_SAFE_HARBOR"
     citation = "FCC_18_177_RND"
     description = "FCC Reassigned Numbers Database verification"
 
     def evaluate(self, ctx: PartyEvaluationContext) -> RuleVerdict:
-        if ctx.channel in (ContactChannel.LIVE_CALL, ContactChannel.AUTOMATED_CALL, ContactChannel.SMS):
+        if ctx.channel in (
+            ContactChannel.LIVE_CALL,
+            ContactChannel.AUTOMATED_CALL,
+            ContactChannel.SMS,
+        ):
             if not ctx.is_rnd_valid:
                 return RuleVerdict(
                     rule_id=self.rule_id,
@@ -101,6 +119,7 @@ class WirelessConsentRule(ComplianceRule):
 
     Authority: 47 U.S.C. § 227(b)(1)(A).
     """
+
     rule_id = "TCPA_WIRELESS_PEWC"
     citation = "47_USC_227_B_1_A"
     description = "Mandatory PEWC for wireless telephone communications"
@@ -119,6 +138,7 @@ class WirelessConsentRule(ComplianceRule):
 
 class MinorProtectionRule(ComplianceRule):
     """Ethical and legal protection prohibiting solicitation of minors (<18)."""
+
     rule_id = "MINOR_PROTECTION"
     citation = "ETHICS_MINOR_PROTECTION"
     description = "Prohibition of direct solicitation of minor accident victims"

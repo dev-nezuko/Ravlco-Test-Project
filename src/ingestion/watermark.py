@@ -10,7 +10,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -56,7 +56,7 @@ class Watermark:
 
         Uses write-to-temp + rename for crash safety.
         """
-        self._state["last_updated"] = datetime.now(timezone.utc).isoformat()
+        self._state["last_updated"] = datetime.now(UTC).isoformat()
         self._path.parent.mkdir(parents=True, exist_ok=True)
 
         tmp_path = self._path.with_suffix(".tmp")

@@ -24,6 +24,7 @@ class TexasBarratryRule(ComplianceRule):
     accident reports obtained from law enforcement to solicit professional employment
     (legal, medical, chiropractic, or investigative).
     """
+
     rule_id = "TX_BARRATRY_PENAL_38_12"
     citation = "TEX_PENAL_CODE_38_12"
     description = "Texas criminal barratry bar on accident victim solicitation"
@@ -46,6 +47,7 @@ class MarylandLiveContactBarratryRule(ComplianceRule):
     or real-time electronic contact to prospective clients known to need legal
     services in a specific accident matter.
     """
+
     rule_id = "MD_LIVE_CONTACT_BARRATRY"
     citation = "MD_BUS_OCC_PROF_10_605"
     description = "Maryland ban on live telephone / in-person accident solicitation"

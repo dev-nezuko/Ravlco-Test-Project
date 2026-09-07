@@ -17,11 +17,9 @@ Key design decisions:
 
 from __future__ import annotations
 
-import json
 import logging
 import os
 import time
-from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -34,7 +32,9 @@ logger = logging.getLogger(__name__)
 # ── Constants ────────────────────────────────────────────────────────────
 
 BASE_URL = "https://data.montgomerycountymd.gov/resource"
-BULK_CSV_URL = "https://data.montgomerycountymd.gov/api/views/{dataset_id}/rows.csv?accessType=DOWNLOAD"
+BULK_CSV_URL = (
+    "https://data.montgomerycountymd.gov/api/views/{dataset_id}/rows.csv?accessType=DOWNLOAD"
+)
 
 DATASETS = {
     "bhju-22kf": {
@@ -119,9 +119,7 @@ def ingest_dataset(
         if last_date:
             # Re-fetch from the watermark date to catch late arrivals
             where_clause = f"{date_field} >= '{last_date}'"
-            logger.info(
-                "Incremental fetch for %s: %s", dataset_id, where_clause
-            )
+            logger.info("Incremental fetch for %s: %s", dataset_id, where_clause)
 
     # Set up output directory for raw pages
     out_dir = RAW_DIR / dataset_id
@@ -158,9 +156,7 @@ def ingest_dataset(
 
             records = response.json()
             if not records:
-                logger.info(
-                    "No more records for %s at offset %d", dataset_id, offset
-                )
+                logger.info("No more records for %s at offset %d", dataset_id, offset)
                 break
 
             page_count = len(records)
@@ -169,9 +165,7 @@ def ingest_dataset(
             # Track the max date for the next incremental run
             for record in records:
                 record_date = record.get(date_field)
-                if record_date and (
-                    max_date_seen is None or record_date > max_date_seen
-                ):
+                if record_date and (max_date_seen is None or record_date > max_date_seen):
                     max_date_seen = record_date
 
             logger.info(
@@ -253,6 +247,4 @@ def _fetch_with_retry(
             )
             time.sleep(wait)
 
-    raise RuntimeError(
-        f"Failed to fetch {url} after {MAX_RETRIES} attempts"
-    )
+    raise RuntimeError(f"Failed to fetch {url} after {MAX_RETRIES} attempts")

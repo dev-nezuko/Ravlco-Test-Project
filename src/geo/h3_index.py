@@ -11,16 +11,16 @@ Resolutions:
 from __future__ import annotations
 
 import hashlib
-from typing import List, Optional, Set, Tuple
 
 try:
     import h3
+
     _HAS_H3 = True
 except ImportError:
     _HAS_H3 = False
 
 
-def point_to_h3(lat: Optional[float], lon: Optional[float], resolution: int = 8) -> Optional[str]:
+def point_to_h3(lat: float | None, lon: float | None, resolution: int = 8) -> str | None:
     """Convert (latitude, longitude) coordinate to H3 hexagonal index string.
 
     Parameters
@@ -55,7 +55,7 @@ def point_to_h3(lat: Optional[float], lon: Optional[float], resolution: int = 8)
     return f"8{resolution:x}" + digest[:13]
 
 
-def get_k_ring(h3_index: str, k: int = 1) -> Set[str]:
+def get_k_ring(h3_index: str, k: int = 1) -> set[str]:
     """Get all neighbor hexagons within k steps of the origin cell.
 
     Used for spatial lag calculation and spatial kernel density estimation.
@@ -72,7 +72,9 @@ def get_k_ring(h3_index: str, k: int = 1) -> Set[str]:
     return {h3_index}
 
 
-def get_h3_indices(lat: Optional[float], lon: Optional[float]) -> Tuple[Optional[str], Optional[str]]:
+def get_h3_indices(
+    lat: float | None, lon: float | None
+) -> tuple[str | None, str | None]:
     """Compute both Resolution 8 and Resolution 9 indices for a point."""
     res8 = point_to_h3(lat, lon, resolution=8)
     res9 = point_to_h3(lat, lon, resolution=9)

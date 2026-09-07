@@ -8,7 +8,6 @@ from src.transforms.fars_silver import (
     replace_integer_sentinels,
 )
 
-
 # ── Fixtures ─────────────────────────────────────────────────────────────
 
 
@@ -33,9 +32,33 @@ def records_with_sentinel_coords():
 def records_with_sentinel_integers():
     """FARS records with sentinel integer values."""
     return [
-        {"STATE": 24, "ST_CASE": 1, "AGE": 35, "HOUR": 14, "MINUTE": 30, "WEATHER": 1, "DRINKING": 0},
-        {"STATE": 24, "ST_CASE": 2, "AGE": 999, "HOUR": 99, "MINUTE": 99, "WEATHER": 9, "DRINKING": 9},
-        {"STATE": 24, "ST_CASE": 3, "AGE": 998, "HOUR": 8, "MINUTE": 15, "WEATHER": 8, "DRINKING": 0},
+        {
+            "STATE": 24,
+            "ST_CASE": 1,
+            "AGE": 35,
+            "HOUR": 14,
+            "MINUTE": 30,
+            "WEATHER": 1,
+            "DRINKING": 0,
+        },
+        {
+            "STATE": 24,
+            "ST_CASE": 2,
+            "AGE": 999,
+            "HOUR": 99,
+            "MINUTE": 99,
+            "WEATHER": 9,
+            "DRINKING": 9,
+        },
+        {
+            "STATE": 24,
+            "ST_CASE": 3,
+            "AGE": 998,
+            "HOUR": 8,
+            "MINUTE": 15,
+            "WEATHER": 8,
+            "DRINKING": 0,
+        },
     ]
 
 
@@ -99,7 +122,7 @@ class TestIntegerSentinels:
 
         # Partial sentinels
         assert result[2]["AGE"] is None  # 998
-        assert result[2]["HOUR"] == 8    # Valid
+        assert result[2]["HOUR"] == 8  # Valid
         assert result[2]["WEATHER"] is None  # 8-fill
 
 

@@ -20,7 +20,6 @@ Key design decisions:
 
 from __future__ import annotations
 
-import json
 import logging
 import time
 from pathlib import Path
@@ -112,9 +111,7 @@ def ingest(full_refresh: bool = False) -> int:
                     error.get("code"),
                     error.get("message"),
                 )
-                raise RuntimeError(
-                    f"ArcGIS query error: {error.get('message')}"
-                )
+                raise RuntimeError(f"ArcGIS query error: {error.get('message')}")
 
             features = data.get("features", [])
             if not features:
@@ -128,9 +125,7 @@ def ingest(full_refresh: bool = False) -> int:
             total_features += page_count
 
             # Advance OID cursor to the max OBJECTID in this page
-            max_oid_in_page = max(
-                f["attributes"]["OBJECTID"] for f in features
-            )
+            max_oid_in_page = max(f["attributes"]["OBJECTID"] for f in features)
             current_oid = max_oid_in_page
 
             logger.info(
@@ -231,6 +226,4 @@ def _fetch_with_retry(
             )
             time.sleep(wait)
 
-    raise RuntimeError(
-        f"Failed to fetch TxDOT data after {MAX_RETRIES} attempts"
-    )
+    raise RuntimeError(f"Failed to fetch TxDOT data after {MAX_RETRIES} attempts")

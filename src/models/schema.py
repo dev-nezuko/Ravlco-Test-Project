@@ -12,9 +12,7 @@ spatial queries via DuckDB spatial extension, and compliance eligibility audits.
 
 from __future__ import annotations
 
-from typing import Optional
 import duckdb
-
 
 # ── DuckDB SQL DDL Statements ──────────────────────────────────────────────
 
@@ -121,7 +119,9 @@ CREATE INDEX IF NOT EXISTS idx_fact_party_eligibility ON fact_party(contact_elig
 """
 
 
-def init_gold_database(conn: Optional[duckdb.DuckDBPyConnection] = None, db_path: str = ":memory:") -> duckdb.DuckDBPyConnection:
+def init_gold_database(
+    conn: duckdb.DuckDBPyConnection | None = None, db_path: str = ":memory:"
+) -> duckdb.DuckDBPyConnection:
     """Initialize DuckDB database with the gold star schema tables and indexes.
 
     Parameters

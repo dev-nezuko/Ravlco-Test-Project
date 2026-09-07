@@ -1,10 +1,11 @@
 """Tests for Gold layer dimensional models, severity crosswalk, and entity resolution."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
 import pytest
 from pydantic import ValidationError
 
-from contracts.gold_schema import FactCrashRecord, FactPartyRecord
+from contracts.gold_schema import FactPartyRecord
 from src.models.entity_resolution import (
     CrashCandidate,
     evaluate_match_pair,
@@ -17,8 +18,8 @@ from src.models.severity_crosswalk import (
     crosswalk_severity,
 )
 
-
 # ── Severity Crosswalk Tests ───────────────────────────────────────────────
+
 
 def test_moco_severity_crosswalk():
     assert crosswalk_severity("FATAL INJURY", "moco") == KABCOSeverity.FATAL
@@ -63,6 +64,7 @@ def test_aggregate_crash_severity():
 
 # ── Entity Resolution Tests ────────────────────────────────────────────────
 
+
 def test_haversine_distance():
     # Known distance: Rockville to Silver Spring (~15 km)
     dist = haversine_distance_meters(39.0840, -77.1528, 38.9907, -77.0261)
@@ -73,8 +75,8 @@ def test_haversine_distance():
 
 
 def test_entity_resolution_matching():
-    t0 = datetime(2024, 6, 15, 14, 30, tzinfo=timezone.utc)
-    t1 = datetime(2024, 6, 15, 14, 34, tzinfo=timezone.utc)  # 4 mins later
+    t0 = datetime(2024, 6, 15, 14, 30, tzinfo=UTC)
+    t1 = datetime(2024, 6, 15, 14, 34, tzinfo=UTC)  # 4 mins later
 
     c1 = CrashCandidate(
         candidate_id="LOCAL_001",
@@ -112,7 +114,7 @@ def test_entity_resolution_matching():
 
 
 def test_resolve_crash_candidates_clustering():
-    t0 = datetime(2024, 6, 15, 14, 30, tzinfo=timezone.utc)
+    t0 = datetime(2024, 6, 15, 14, 30, tzinfo=UTC)
     c1 = CrashCandidate("C1", "moco", t0, 39.084, -77.152, fatality_count=1)
     c2 = CrashCandidate("C2", "fars", t0, 39.0841, -77.1521, fatality_count=1)
     c3 = CrashCandidate("C3", "txdot", t0, 30.267, -97.743, fatality_count=0)
@@ -126,6 +128,7 @@ def test_resolve_crash_candidates_clustering():
 
 
 # ── Gold Contracts Tests ───────────────────────────────────────────────────
+
 
 def test_gold_fact_party_contract_rejects_sentinel_age():
     # Valid record

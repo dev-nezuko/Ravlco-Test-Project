@@ -186,9 +186,15 @@ def apply_scd2_amendments(
 def _record_changed(old: dict, new: dict) -> bool:
     """Check if a record has materially changed (ignoring metadata fields)."""
     skip_fields = {
-        "version", "is_current", "valid_from", "valid_to",
-        "OBJECTID", "resolved_latitude", "resolved_longitude",
-        "coord_source", "coord_conflict",
+        "version",
+        "is_current",
+        "valid_from",
+        "valid_to",
+        "OBJECTID",
+        "resolved_latitude",
+        "resolved_longitude",
+        "coord_source",
+        "coord_conflict",
     }
     for key in new:
         if key in skip_fields:
@@ -265,13 +271,31 @@ def parse_string_dates(
 # set requires access to the CRIS system, which is behind authentication.
 # We document them here for transparency.
 UNDOCUMENTED_CODE_COLUMNS = [
-    "wthr_cond_id", "light_cond_id", "road_part_adj_id", "road_relat_id",
-    "road_type_id", "rpt_road_part_id", "surf_cond_id", "surf_type_id",
-    "traffic_cntl_id", "harm_evnt_id", "intrsct_relat_id", "fhe_collsn_id",
-    "obj_struck_id", "othr_factr_id", "road_algn_id", "road_cls_id",
-    "rr_relat_fl", "pop_group_id", "investigat_agency_id",
-    "investigat_area_id", "crash_sev_id", "rpt_block_num",
-    "rpt_hwy_num", "rpt_sec_block_num", "rpt_sec_hwy_num",
+    "wthr_cond_id",
+    "light_cond_id",
+    "road_part_adj_id",
+    "road_relat_id",
+    "road_type_id",
+    "rpt_road_part_id",
+    "surf_cond_id",
+    "surf_type_id",
+    "traffic_cntl_id",
+    "harm_evnt_id",
+    "intrsct_relat_id",
+    "fhe_collsn_id",
+    "obj_struck_id",
+    "othr_factr_id",
+    "road_algn_id",
+    "road_cls_id",
+    "rr_relat_fl",
+    "pop_group_id",
+    "investigat_agency_id",
+    "investigat_area_id",
+    "crash_sev_id",
+    "rpt_block_num",
+    "rpt_hwy_num",
+    "rpt_sec_block_num",
+    "rpt_sec_hwy_num",
     # ... approximately 60 total columns are integer codes
 ]
 

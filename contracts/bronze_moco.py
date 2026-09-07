@@ -10,10 +10,7 @@ Each model preserves the raw field names from the Socrata API.
 
 from __future__ import annotations
 
-from datetime import datetime
-from typing import Optional
-
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel
 
 
 class MoCoIncident(BaseModel):
@@ -23,32 +20,32 @@ class MoCoIncident(BaseModel):
     """
 
     report_number: str
-    local_case_number: Optional[str] = None
-    agency_name: Optional[str] = None
-    acrs_report_type: Optional[str] = None
+    local_case_number: str | None = None
+    agency_name: str | None = None
+    acrs_report_type: str | None = None
 
     crash_date_time: str  # ISO-8601 string from Socrata
-    route_type: Optional[str] = None
-    road_name: Optional[str] = None
-    cross_street_type: Optional[str] = None
-    cross_street_name: Optional[str] = None
+    route_type: str | None = None
+    road_name: str | None = None
+    cross_street_type: str | None = None
+    cross_street_name: str | None = None
 
     # Coordinates — present but may be geometrically wrong (see DATA_QUALITY.md)
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
+    latitude: float | None = None
+    longitude: float | None = None
 
     # Conditions
-    collision_type: Optional[str] = None
-    weather: Optional[str] = None
-    surface_condition: Optional[str] = None
-    light: Optional[str] = None
-    traffic_control: Optional[str] = None
+    collision_type: str | None = None
+    weather: str | None = None
+    surface_condition: str | None = None
+    light: str | None = None
+    traffic_control: str | None = None
 
     # Severity
-    injury_severity: Optional[str] = None
+    injury_severity: str | None = None
 
     # Counts
-    vehicle_count: Optional[int] = None
+    vehicle_count: int | None = None
     # Additional fields may be present; Pydantic's model_config handles extras.
 
     model_config = {"extra": "allow"}  # Don't reject unknown fields (schema drift tolerance)
@@ -61,28 +58,28 @@ class MoCoDriver(BaseModel):
     """
 
     report_number: str
-    person_id: Optional[str] = None
+    person_id: str | None = None
 
     crash_date_time: str
 
     # Driver details
-    driver_at_fault: Optional[str] = None
-    driver_substance_abuse: Optional[str] = None  # Mixed dictionary — see DATA_QUALITY.md
-    driver_distracted_by: Optional[str] = None
-    injury_severity: Optional[str] = None
+    driver_at_fault: str | None = None
+    driver_substance_abuse: str | None = None  # Mixed dictionary — see DATA_QUALITY.md
+    driver_distracted_by: str | None = None
+    injury_severity: str | None = None
 
     # Vehicle
-    vehicle_id: Optional[str] = None
-    vehicle_body_type: Optional[str] = None
-    vehicle_movement: Optional[str] = None
-    speed_limit: Optional[int] = None
+    vehicle_id: str | None = None
+    vehicle_body_type: str | None = None
+    vehicle_movement: str | None = None
+    speed_limit: int | None = None
 
     # Denormalized crash-level fields (DO NOT aggregate from this table)
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
-    weather: Optional[str] = None
-    light: Optional[str] = None
-    surface_condition: Optional[str] = None
+    latitude: float | None = None
+    longitude: float | None = None
+    weather: str | None = None
+    light: str | None = None
+    surface_condition: str | None = None
 
     model_config = {"extra": "allow"}
 
@@ -94,18 +91,18 @@ class MoCoNonMotorist(BaseModel):
     """
 
     report_number: str
-    person_id: Optional[str] = None
+    person_id: str | None = None
 
     crash_date_time: str
 
     # Non-motorist details
-    pedestrian_type: Optional[str] = None
-    pedestrian_movement: Optional[str] = None
-    pedestrian_actions: Optional[str] = None
-    injury_severity: Optional[str] = None
+    pedestrian_type: str | None = None
+    pedestrian_movement: str | None = None
+    pedestrian_actions: str | None = None
+    injury_severity: str | None = None
 
     # Location (denormalized from crash)
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
+    latitude: float | None = None
+    longitude: float | None = None
 
     model_config = {"extra": "allow"}

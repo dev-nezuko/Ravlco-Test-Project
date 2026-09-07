@@ -13,22 +13,23 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import List, Optional, Tuple
 
 
 @dataclass
 class RoadSegment:
     """Roadway line segment for snapping."""
+
     segment_id: str
     road_name: str
     functional_class: str  # 'INTERSTATE', 'ARTERIAL', 'COLLECTOR', 'LOCAL'
     speed_limit_mph: int
-    coords: List[Tuple[float, float]]  # List of (lat, lon)
+    coords: list[tuple[float, float]]  # List of (lat, lon)
 
 
 @dataclass
 class SnapResult:
     """Result of snapping a crash point to a road network."""
+
     road_name: str
     functional_class: str
     speed_limit_mph: int
@@ -67,7 +68,7 @@ SAMPLE_MOCO_ROADS = [
 
 def _point_to_line_segment_dist(
     plat: float, plon: float, lat1: float, lon1: float, lat2: float, lon2: float
-) -> Tuple[float, float, float]:
+) -> tuple[float, float, float]:
     """Calculate orthogonal distance from point (plat, plon) to line segment (lat1, lon1)-(lat2, lon2).
 
     Returns (distance_meters, snapped_lat, snapped_lon).
@@ -99,11 +100,11 @@ def _point_to_line_segment_dist(
 
 
 def snap_crash_to_roadway(
-    lat: Optional[float],
-    lon: Optional[float],
-    road_segments: Optional[List[RoadSegment]] = None,
+    lat: float | None,
+    lon: float | None,
+    road_segments: list[RoadSegment] | None = None,
     max_snap_distance_m: float = 50.0,
-) -> Optional[SnapResult]:
+) -> SnapResult | None:
     """Snap a crash location to the nearest roadway segment."""
     if lat is None or lon is None:
         return None
@@ -111,15 +112,13 @@ def snap_crash_to_roadway(
     segments = road_segments or SAMPLE_MOCO_ROADS
     best_dist = float("inf")
     best_snap = (lat, lon)
-    best_seg: Optional[RoadSegment] = None
+    best_seg: RoadSegment | None = None
 
     for seg in segments:
         for i in range(len(seg.coords) - 1):
             lat1, lon1 = seg.coords[i]
             lat2, lon2 = seg.coords[i + 1]
-            dist, s_lat, s_lon = _point_to_line_segment_dist(
-                lat, lon, lat1, lon1, lat2, lon2
-            )
+            dist, s_lat, s_lon = _point_to_line_segment_dist(lat, lon, lat1, lon1, lat2, lon2)
             if dist < best_dist:
                 best_dist = dist
                 best_snap = (s_lat, s_lon)

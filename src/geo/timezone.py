@@ -11,12 +11,12 @@ assuming state-level timezone results in premature contact violations.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Optional
+from datetime import UTC, datetime
 from zoneinfo import ZoneInfo
 
 try:
     from timezonefinder import TimezoneFinder
+
     _TF = TimezoneFinder()
 except ImportError:
     _TF = None
@@ -31,7 +31,9 @@ MOUNTAIN_CONUS_BOX = (31.0, -115.0, 49.0, -104.0)
 PACIFIC_CONUS_BOX = (32.5, -125.0, 49.0, -114.0)
 
 
-def get_iana_timezone(lat: Optional[float], lon: Optional[float], state_hint: Optional[str] = None) -> str:
+def get_iana_timezone(
+    lat: float | None, lon: float | None, state_hint: str | None = None
+) -> str:
     """Resolve IANA timezone string (e.g. 'America/New_York', 'America/Chicago').
 
     Parameters
@@ -61,13 +63,25 @@ def get_iana_timezone(lat: Optional[float], lon: Optional[float], state_hint: Op
         ):
             return "America/Denver"
 
-        if EASTERN_CONUS_BOX[0] <= lat <= EASTERN_CONUS_BOX[2] and EASTERN_CONUS_BOX[1] <= lon <= EASTERN_CONUS_BOX[3]:
+        if (
+            EASTERN_CONUS_BOX[0] <= lat <= EASTERN_CONUS_BOX[2]
+            and EASTERN_CONUS_BOX[1] <= lon <= EASTERN_CONUS_BOX[3]
+        ):
             return "America/New_York"
-        if CENTRAL_CONUS_BOX[0] <= lat <= CENTRAL_CONUS_BOX[2] and CENTRAL_CONUS_BOX[1] <= lon <= CENTRAL_CONUS_BOX[3]:
+        if (
+            CENTRAL_CONUS_BOX[0] <= lat <= CENTRAL_CONUS_BOX[2]
+            and CENTRAL_CONUS_BOX[1] <= lon <= CENTRAL_CONUS_BOX[3]
+        ):
             return "America/Chicago"
-        if MOUNTAIN_CONUS_BOX[0] <= lat <= MOUNTAIN_CONUS_BOX[2] and MOUNTAIN_CONUS_BOX[1] <= lon <= MOUNTAIN_CONUS_BOX[3]:
+        if (
+            MOUNTAIN_CONUS_BOX[0] <= lat <= MOUNTAIN_CONUS_BOX[2]
+            and MOUNTAIN_CONUS_BOX[1] <= lon <= MOUNTAIN_CONUS_BOX[3]
+        ):
             return "America/Denver"
-        if PACIFIC_CONUS_BOX[0] <= lat <= PACIFIC_CONUS_BOX[2] and PACIFIC_CONUS_BOX[1] <= lon <= PACIFIC_CONUS_BOX[3]:
+        if (
+            PACIFIC_CONUS_BOX[0] <= lat <= PACIFIC_CONUS_BOX[2]
+            and PACIFIC_CONUS_BOX[1] <= lon <= PACIFIC_CONUS_BOX[3]
+        ):
             return "America/Los_Angeles"
 
     # State hint fallback
@@ -75,7 +89,22 @@ def get_iana_timezone(lat: Optional[float], lon: Optional[float], state_hint: Op
         sh = state_hint.upper().strip()
         if sh in ("MD", "VA", "DC", "PA", "DE", "NY", "NJ", "NC", "SC", "GA", "FL"):
             return "America/New_York"
-        if sh in ("TX", "IL", "MO", "TN", "AL", "MS", "LA", "AR", "OK", "KS", "NE", "IA", "WI", "MN"):
+        if sh in (
+            "TX",
+            "IL",
+            "MO",
+            "TN",
+            "AL",
+            "MS",
+            "LA",
+            "AR",
+            "OK",
+            "KS",
+            "NE",
+            "IA",
+            "WI",
+            "MN",
+        ):
             return "America/Chicago"
         if sh in ("NM", "CO", "WY", "MT", "UT", "AZ"):
             return "America/Denver"
@@ -93,7 +122,7 @@ def get_local_datetime(utc_dt: datetime, tz_name: str) -> datetime:
         zone = ZoneInfo("America/New_York")
 
     if utc_dt.tzinfo is None:
-        utc_dt = utc_dt.replace(tzinfo=timezone.utc)
+        utc_dt = utc_dt.replace(tzinfo=UTC)
 
     return utc_dt.astimezone(zone)
 

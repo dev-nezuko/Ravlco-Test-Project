@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import logging
 import re
-from datetime import datetime
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -97,8 +96,7 @@ def flag_out_of_envelope(
         )
 
     logger.info(
-        "Coordinate envelope check: %d valid, %d out_of_bounds, %d missing "
-        "(total %d)",
+        "Coordinate envelope check: %d valid, %d out_of_bounds, %d missing (total %d)",
         len(records) - flagged - missing,
         flagged,
         missing,
@@ -185,8 +183,7 @@ def harmonize_substance_abuse(
             new_count += 1
 
     logger.info(
-        "Substance abuse harmonization: %d old scheme, %d new scheme, "
-        "%d null (total %d)",
+        "Substance abuse harmonization: %d old scheme, %d new scheme, %d null (total %d)",
         old_count,
         new_count,
         null_count,
@@ -338,8 +335,7 @@ def validate_driver_grain(
 
     if duplicates:
         logger.warning(
-            "Driver grain violation: %d duplicate (report_number, person_id) "
-            "pairs found",
+            "Driver grain violation: %d duplicate (report_number, person_id) pairs found",
             duplicates,
         )
     else:
@@ -352,6 +348,7 @@ def validate_driver_grain(
 
 import math
 
+
 def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """Approximate great-circle distance in km using the haversine formula."""
     R = 6371.0  # Earth radius in km
@@ -359,8 +356,6 @@ def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     dlon = math.radians(lon2 - lon1)
     a = (
         math.sin(dlat / 2) ** 2
-        + math.cos(math.radians(lat1))
-        * math.cos(math.radians(lat2))
-        * math.sin(dlon / 2) ** 2
+        + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2) ** 2
     )
     return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))

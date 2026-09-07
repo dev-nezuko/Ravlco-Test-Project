@@ -1,10 +1,9 @@
 """Tests for compliance gates, Texas barratry, Maryland moratorium, and TCPA rules."""
 
-from datetime import datetime, timedelta, timezone
-import pytest
+from datetime import UTC, datetime, timedelta
 
-from src.compliance.eligibility import build_standard_compliance_engine, evaluate_party_eligibility
-from src.compliance.ruleset import ContactChannel, PartyEvaluationContext
+from src.compliance.eligibility import evaluate_party_eligibility
+from src.compliance.ruleset import ContactChannel
 
 
 def test_texas_barratry_and_statutory_suppression():
@@ -12,7 +11,7 @@ def test_texas_barratry_and_statutory_suppression():
     crash = {
         "crash_id": "TX_CRASH_001",
         "source_system": "txdot",
-        "crash_timestamp": datetime(2024, 6, 1, tzinfo=timezone.utc),
+        "crash_timestamp": datetime(2024, 6, 1, tzinfo=UTC),
         "severity_kabc0": "B",
     }
     party = {
@@ -23,7 +22,7 @@ def test_texas_barratry_and_statutory_suppression():
         "age": 35,
     }
 
-    eval_time = datetime(2024, 8, 1, tzinfo=timezone.utc)  # Even months later
+    eval_time = datetime(2024, 8, 1, tzinfo=UTC)  # Even months later
     status, reasons = evaluate_party_eligibility(
         party, crash, channel=ContactChannel.DIRECT_MAIL, evaluation_time=eval_time
     )
@@ -38,7 +37,7 @@ def test_maryland_live_call_prohibition():
     crash = {
         "crash_id": "MD_CRASH_001",
         "source_system": "moco",
-        "crash_timestamp": datetime(2024, 6, 1, 10, 0, tzinfo=timezone.utc),
+        "crash_timestamp": datetime(2024, 6, 1, 10, 0, tzinfo=UTC),
         "severity_kabc0": "C",
         "timezone_iana": "America/New_York",
     }
@@ -51,7 +50,7 @@ def test_maryland_live_call_prohibition():
     }
 
     # Live call attempted on Day 45
-    eval_time = datetime(2024, 7, 16, 14, 0, tzinfo=timezone.utc)
+    eval_time = datetime(2024, 7, 16, 14, 0, tzinfo=UTC)
     status, reasons = evaluate_party_eligibility(
         party, crash, channel=ContactChannel.LIVE_CALL, evaluation_time=eval_time
     )
@@ -62,7 +61,7 @@ def test_maryland_live_call_prohibition():
 
 def test_maryland_30_day_blackout_window_moratorium():
     """Verify direct mail is blocked within 30 days and permitted after Day 30."""
-    t_crash = datetime(2024, 6, 1, 12, 0, tzinfo=timezone.utc)
+    t_crash = datetime(2024, 6, 1, 12, 0, tzinfo=UTC)
     crash = {
         "crash_id": "MD_CRASH_002",
         "source_system": "moco",
@@ -99,7 +98,7 @@ def test_fars_fatality_suppression():
     crash = {
         "crash_id": "FARS_001",
         "source_system": "fars",
-        "crash_timestamp": datetime(2024, 5, 1, tzinfo=timezone.utc),
+        "crash_timestamp": datetime(2024, 5, 1, tzinfo=UTC),
         "severity_kabc0": "K",
     }
     party = {
@@ -110,9 +109,7 @@ def test_fars_fatality_suppression():
         "age": 50,
     }
 
-    status, reasons = evaluate_party_eligibility(
-        party, crash, channel=ContactChannel.DIRECT_MAIL
-    )
+    status, reasons = evaluate_party_eligibility(party, crash, channel=ContactChannel.DIRECT_MAIL)
     assert status == "INELIGIBLE"
     assert "NHTSA_FARS_FATALITY_ETHICS" in reasons
 
@@ -122,7 +119,7 @@ def test_tcpa_calling_hours_restriction():
     crash = {
         "crash_id": "CRASH_003",
         "source_system": "other",
-        "crash_timestamp": datetime(2024, 1, 1, tzinfo=timezone.utc),
+        "crash_timestamp": datetime(2024, 1, 1, tzinfo=UTC),
         "timezone_iana": "America/New_York",
     }
     party = {
@@ -132,11 +129,11 @@ def test_tcpa_calling_hours_restriction():
         "injury_severity": "C",
         "age": 35,
         "is_on_dnc_registry": False,
-        "dnc_scrub_timestamp": datetime(2024, 6, 1, tzinfo=timezone.utc),
+        "dnc_scrub_timestamp": datetime(2024, 6, 1, tzinfo=UTC),
     }
 
     # 6:00 AM Eastern (11:00 UTC) -> outside window
-    eval_early = datetime(2024, 6, 15, 11, 0, tzinfo=timezone.utc)
+    eval_early = datetime(2024, 6, 15, 11, 0, tzinfo=UTC)
     status, reasons = evaluate_party_eligibility(
         party, crash, channel=ContactChannel.LIVE_CALL, evaluation_time=eval_early
     )
@@ -149,7 +146,7 @@ def test_minor_protection():
     crash = {
         "crash_id": "MD_CRASH_004",
         "source_system": "moco",
-        "crash_timestamp": datetime(2024, 1, 1, tzinfo=timezone.utc),
+        "crash_timestamp": datetime(2024, 1, 1, tzinfo=UTC),
     }
     party = {
         "party_id": "PARTY_MINOR",
@@ -159,7 +156,7 @@ def test_minor_protection():
         "age": 16,  # Minor
     }
 
-    eval_time = datetime(2024, 3, 1, tzinfo=timezone.utc)
+    eval_time = datetime(2024, 3, 1, tzinfo=UTC)
     status, reasons = evaluate_party_eligibility(
         party, crash, channel=ContactChannel.DIRECT_MAIL, evaluation_time=eval_time
     )
@@ -172,7 +169,7 @@ def test_missing_dnc_scrub_blocks_phone_outreach():
     crash = {
         "crash_id": "CRASH_005",
         "source_system": "other",
-        "crash_timestamp": datetime(2024, 1, 1, tzinfo=timezone.utc),
+        "crash_timestamp": datetime(2024, 1, 1, tzinfo=UTC),
         "timezone_iana": "America/New_York",
     }
     party = {
@@ -182,7 +179,7 @@ def test_missing_dnc_scrub_blocks_phone_outreach():
         "injury_severity": "C",
         "age": 40,
     }
-    midday_eastern = datetime(2024, 6, 15, 16, 0, tzinfo=timezone.utc)
+    midday_eastern = datetime(2024, 6, 15, 16, 0, tzinfo=UTC)
 
     status, reasons = evaluate_party_eligibility(
         party, crash, channel=ContactChannel.LIVE_CALL, evaluation_time=midday_eastern

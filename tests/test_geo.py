@@ -1,13 +1,15 @@
 """Tests for geospatial enrichment modules (CRS, Timezone, H3, Census, Road Snapping, Weather)."""
 
-from datetime import datetime, timezone
-import pytest
+from datetime import datetime
 
-from src.geo.census_enrichment import enrich_census_demographics, match_coordinate_to_county
+from src.geo.census_enrichment import enrich_census_demographics
 from src.geo.crs import BOUNDS_MONTGOMERY_MD, BOUNDS_TEXAS, is_in_bounding_box, reproject_point
-from src.geo.h3_index import get_h3_indices, get_k_ring, point_to_h3
+from src.geo.h3_index import get_h3_indices, get_k_ring
 from src.geo.road_snap import snap_crash_to_roadway
-from src.geo.timezone import get_iana_timezone, get_local_datetime, is_within_statutory_contact_hours
+from src.geo.timezone import (
+    get_iana_timezone,
+    is_within_statutory_contact_hours,
+)
 from src.geo.weather_join import infer_weather_observation
 
 

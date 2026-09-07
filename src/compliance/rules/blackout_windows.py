@@ -8,6 +8,7 @@ Authorities:
 from __future__ import annotations
 
 from datetime import timedelta
+
 from src.compliance.ruleset import ComplianceRule, PartyEvaluationContext, RuleVerdict
 
 
@@ -18,6 +19,7 @@ class MarylandThirtyDayBlackoutRule(ComplianceRule):
     written communication (direct mail) cannot be sent until at least 30 calendar
     days have elapsed since the collision date.
     """
+
     rule_id = "MD_30_DAY_BLACKOUT"
     citation = "MD_BUS_OCC_PROF_10_605_30_DAY"
     description = "Maryland mandatory 30-day post-crash cooling off moratorium"
@@ -42,4 +44,6 @@ class MarylandThirtyDayBlackoutRule(ComplianceRule):
                     reason=f"Within Maryland 30-day blackout window ({remaining_days} days remaining)",
                 )
 
-        return RuleVerdict(self.rule_id, True, self.citation, "Past 30-day blackout period or non-MD")
+        return RuleVerdict(
+            self.rule_id, True, self.citation, "Past 30-day blackout period or non-MD"
+        )

@@ -17,27 +17,29 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
+
 import httpx
 
 
 @dataclass
 class CensusEnrichmentResult:
     """Demographic and geographic profile of crash location."""
+
     state_fips: str
     state_abbr: str
     county_fips: str
     county_name: str
     tract_code: str
     geoid: str
-    median_household_income: Optional[int] = None
-    total_population: Optional[int] = None
-    poverty_rate: Optional[float] = None
-    zero_vehicle_household_pct: Optional[float] = None
+    median_household_income: int | None = None
+    total_population: int | None = None
+    poverty_rate: float | None = None
+    zero_vehicle_household_pct: float | None = None
 
 
 # Known County Centroids and FIPS for Montgomery County, MD and Texas
-COUNTY_LOOKUP: Dict[str, Dict[str, Any]] = {
+COUNTY_LOOKUP: dict[str, dict[str, Any]] = {
     # Montgomery County, MD
     "24031": {
         "county_name": "Montgomery County",
@@ -96,9 +98,7 @@ COUNTY_LOOKUP: Dict[str, Dict[str, Any]] = {
 }
 
 
-def match_coordinate_to_county(
-    lat: Optional[float], lon: Optional[float]
-) -> Optional[str]:
+def match_coordinate_to_county(lat: float | None, lon: float | None) -> str | None:
     """Identify matching 5-digit County FIPS from coordinates bounding boxes."""
     if lat is None or lon is None:
         return None
@@ -118,10 +118,10 @@ def match_coordinate_to_county(
 
 
 def enrich_census_demographics(
-    lat: Optional[float],
-    lon: Optional[float],
-    county_fips_hint: Optional[str] = None,
-) -> Optional[CensusEnrichmentResult]:
+    lat: float | None,
+    lon: float | None,
+    county_fips_hint: str | None = None,
+) -> CensusEnrichmentResult | None:
     """Enrich coordinate with Census Tract GEOID and ACS socioeconomic estimates."""
     fips = county_fips_hint or match_coordinate_to_county(lat, lon)
     if not fips or fips not in COUNTY_LOOKUP:
@@ -178,8 +178,8 @@ def fetch_live_census_acs(
     county_fips: str,
     tract_code: str,
     year: int = 2022,
-    api_key: Optional[str] = None,
-) -> Optional[Dict[str, Any]]:
+    api_key: str | None = None,
+) -> dict[str, Any] | None:
     """Query US Census Bureau API for ACS 5-Year socioeconomic estimates.
 
     Parameters
@@ -217,7 +217,9 @@ def fetch_live_census_acs(
                 median_inc = int(row[1]) if row[1] and int(row[1]) > 0 else None
                 population = int(row[2]) if row[2] and int(row[2]) >= 0 else None
                 poverty_count = int(row[3]) if row[3] and int(row[3]) >= 0 else 0
-                pov_rate = round(poverty_count / population, 4) if population and population > 0 else None
+                pov_rate = (
+                    round(poverty_count / population, 4) if population and population > 0 else None
+                )
                 return {
                     "median_income": median_inc,
                     "population": population,

@@ -20,34 +20,36 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple
+from datetime import datetime
+from typing import Any
 
 
 @dataclass
 class CrashCandidate:
     """Standardized representation of a crash for entity resolution."""
+
     candidate_id: str
     source: str
-    crash_timestamp: Optional[datetime]
-    latitude: Optional[float]
-    longitude: Optional[float]
-    county: Optional[str] = None
+    crash_timestamp: datetime | None
+    latitude: float | None
+    longitude: float | None
+    county: str | None = None
     fatality_count: int = 0
-    vehicles_involved: Optional[int] = None
-    original_id: Optional[str] = None
-    attributes: Dict[str, Any] = field(default_factory=dict)
+    vehicles_involved: int | None = None
+    original_id: str | None = None
+    attributes: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
 class ResolvedCluster:
     """A cluster of resolved crash records representing a single physical event."""
+
     cluster_id: str
     primary_candidate: CrashCandidate
-    matched_candidates: List[CrashCandidate] = field(default_factory=list)
+    matched_candidates: list[CrashCandidate] = field(default_factory=list)
     confidence_score: float = 1.0
     match_method: str = "exact_id"
-    divergence_notes: List[str] = field(default_factory=list)
+    divergence_notes: list[str] = field(default_factory=list)
 
     @property
     def member_count(self) -> int:
@@ -55,14 +57,10 @@ class ResolvedCluster:
 
     @property
     def sources_involved(self) -> set[str]:
-        return {self.primary_candidate.source}.union(
-            c.source for c in self.matched_candidates
-        )
+        return {self.primary_candidate.source}.union(c.source for c in self.matched_candidates)
 
 
-def haversine_distance_meters(
-    lat1: float, lon1: float, lat2: float, lon2: float
-) -> float:
+def haversine_distance_meters(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """Calculate the great-circle distance between two points on Earth in meters."""
     R = 6371000.0  # Earth radius in meters
     phi1 = math.radians(lat1)
@@ -78,9 +76,7 @@ def haversine_distance_meters(
     return R * c
 
 
-def evaluate_match_pair(
-    c1: CrashCandidate, c2: CrashCandidate
-) -> Tuple[bool, float, str]:
+def evaluate_match_pair(c1: CrashCandidate, c2: CrashCandidate) -> tuple[bool, float, str]:
     """Evaluate whether two crash candidates refer to the same physical incident.
 
     Returns
@@ -105,9 +101,7 @@ def evaluate_match_pair(
     if not has_coords:
         return False, 0.0, "no_match_missing_coords"
 
-    dist_m = haversine_distance_meters(
-        c1.latitude, c1.longitude, c2.latitude, c2.longitude
-    )
+    dist_m = haversine_distance_meters(c1.latitude, c1.longitude, c2.latitude, c2.longitude)
 
     # If further than 200m apart, reject
     if dist_m > 200.0:
@@ -145,10 +139,10 @@ def evaluate_match_pair(
 
 
 def resolve_crash_candidates(
-    candidates: List[CrashCandidate],
-) -> List[ResolvedCluster]:
+    candidates: list[CrashCandidate],
+) -> list[ResolvedCluster]:
     """Cluster crash candidates into unified physical events using greedy resolution."""
-    clusters: List[ResolvedCluster] = []
+    clusters: list[ResolvedCluster] = []
     assigned: set[str] = set()
 
     # Prioritize candidates with richer data (known coords + full timestamp)
