@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -126,9 +127,10 @@ def ingest_dataset(
     out_dir = RAW_DIR / dataset_id
     out_dir.mkdir(parents=True, exist_ok=True)
 
+    token = app_token or os.getenv("SOCRATA_APP_TOKEN")
     headers = {}
-    if app_token:
-        headers["X-App-Token"] = app_token
+    if token:
+        headers["X-App-Token"] = token
 
     total_rows = 0
     offset = 0

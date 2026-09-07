@@ -15,8 +15,10 @@ Enriches with ACS 5-Year Socioeconomic Estimates:
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
 from typing import Any, Dict, Optional, Tuple
+import httpx
 
 
 @dataclass
@@ -136,6 +138,25 @@ def enrich_census_demographics(
 
     geoid = f"{fips}{tract_code}"
 
+    # Check for live Census API enrichment if CENSUS_API_KEY is configured
+    live_result = fetch_live_census_acs(
+        state_fips=state_fips,
+        county_fips=fips[2:],
+        tract_code=tract_code,
+    )
+    if live_result is not None:
+        return CensusEnrichmentResult(
+            state_fips=state_fips,
+            county_fips=fips,
+            county_name=meta["county_name"],
+            tract_code=tract_code,
+            geoid=geoid,
+            median_household_income=live_result.get("median_income", meta["median_income"]),
+            total_population=live_result.get("population", meta["population"]),
+            poverty_rate=live_result.get("poverty_rate", meta["poverty_rate"]),
+            zero_vehicle_household_pct=meta["zero_veh_pct"],
+        )
+
     return CensusEnrichmentResult(
         state_fips=state_fips,
         county_fips=fips,
@@ -147,3 +168,59 @@ def enrich_census_demographics(
         poverty_rate=meta["poverty_rate"],
         zero_vehicle_household_pct=meta["zero_veh_pct"],
     )
+
+
+def fetch_live_census_acs(
+    state_fips: str,
+    county_fips: str,
+    tract_code: str,
+    year: int = 2022,
+    api_key: Optional[str] = None,
+) -> Optional[Dict[str, Any]]:
+    """Query US Census Bureau API for ACS 5-Year socioeconomic estimates.
+
+    Parameters
+    ----------
+    state_fips:
+        2-digit state FIPS code (e.g. '24' for MD, '48' for TX).
+    county_fips:
+        3-digit county FIPS code (e.g. '031' for Montgomery Co, '453' for Travis Co).
+    tract_code:
+        6-digit census tract code.
+    year:
+        ACS release year (default: 2022).
+    api_key:
+        Optional Census API key (falls back to CENSUS_API_KEY environment variable).
+    """
+    key = api_key or os.getenv("CENSUS_API_KEY")
+    if not key:
+        return None
+
+    url = f"https://api.census.gov/data/{year}/acs/acs5"
+    params = {
+        "get": "NAME,B19013_001E,B01003_001E,B17001_002E",
+        "for": f"tract:{tract_code}",
+        "in": f"state:{state_fips}+county:{county_fips}",
+        "key": key,
+    }
+
+    try:
+        resp = httpx.get(url, params=params, timeout=10.0)
+        if resp.status_code == 200:
+            data = resp.json()
+            # Header is data[0], values in data[1]
+            if len(data) >= 2:
+                row = data[1]
+                median_inc = int(row[1]) if row[1] and int(row[1]) > 0 else None
+                population = int(row[2]) if row[2] and int(row[2]) >= 0 else None
+                poverty_count = int(row[3]) if row[3] and int(row[3]) >= 0 else 0
+                pov_rate = round(poverty_count / population, 4) if population and population > 0 else None
+                return {
+                    "median_income": median_inc,
+                    "population": population,
+                    "poverty_rate": pov_rate,
+                }
+    except Exception:
+        pass  # Gracefully fall back to offline estimates on network failure
+
+    return None
