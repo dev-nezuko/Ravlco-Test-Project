@@ -94,3 +94,7 @@ def test_weather_join():
     assert obs.weather_condition == "RAIN"
     assert obs.surface_condition == "WET"
     assert obs.is_adverse_weather is True
+    # No reanalysis source is wired in, so measured values stay unknown.
+    assert obs.temperature_f is None
+    assert obs.precipitation_inches is None
+    assert obs.wind_speed_mph is None

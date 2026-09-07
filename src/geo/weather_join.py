@@ -1,10 +1,8 @@
-"""Historical weather joining using Open-Meteo ERA5 reanalysis archive.
+"""Weather standardisation for crash records.
 
-Matches crash timestamp and coordinate to historical surface observations:
-- Temperature (°C / °F)
-- Precipitation (mm/hr rain, snowfall cm)
-- Road surface icing hazard index
-- Visibility and fog conditions
+Maps police-reported weather and road-surface descriptions onto a small set
+of standard conditions. No reanalysis archive (e.g. ERA5) is queried yet, so
+the measured fields (temperature, precipitation, wind) are left as None.
 """
 
 from __future__ import annotations
@@ -51,10 +49,7 @@ def infer_weather_observation(
     raw_weather_desc: Optional[str] = None,
     raw_surface_desc: Optional[str] = None,
 ) -> WeatherObservation:
-    """Derive standardized weather observation from source records or ERA5 archive.
-
-    In offline environments, standardizes reported police weather attributes.
-    """
+    """Standardise the police-reported weather and surface for one crash."""
     clean_desc = (raw_weather_desc or "CLEAR").strip().upper()
     cond = RAW_WEATHER_MAP.get(clean_desc, "CLEAR")
 
@@ -69,10 +64,10 @@ def infer_weather_observation(
     is_adverse = cond in ("RAIN", "SNOW", "FOG", "SEVERE_STORM") or surface != "DRY"
 
     return WeatherObservation(
-        temperature_f=65.0,
-        precipitation_inches=0.15 if cond == "RAIN" else 0.0,
+        temperature_f=None,
+        precipitation_inches=None,
         weather_condition=cond,
         surface_condition=surface,
-        wind_speed_mph=8.5,
+        wind_speed_mph=None,
         is_adverse_weather=is_adverse,
     )
