@@ -15,9 +15,6 @@ from typing import Any
 
 try:
     from dagster import (
-        AssetExecutionContext,
-        AssetIn,
-        AssetKey,
         ConfigurableResource,
         Definitions,
         ScheduleDefinition,
@@ -84,7 +81,7 @@ def bronze_fars_crashes() -> dict[str, Any]:
 
 @asset(group_name="silver", compute_kind="duckdb")
 def silver_moco_cleaned(bronze_moco_incidents, bronze_moco_drivers) -> dict[str, Any]:
-    """Applies MoCo coordinate envelope validation, substance abuse harmonization, and grain enforcement."""
+    """Applies MoCo coordinate envelope checks, substance-abuse harmonisation and grain rules."""
     return {"source": "moco", "status": "cleaned", "defects_resolved": 4}
 
 

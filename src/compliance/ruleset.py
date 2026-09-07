@@ -9,11 +9,11 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 
-class ContactChannel(str, Enum):
+class ContactChannel(StrEnum):
     """Outbound communication medium."""
 
     LIVE_CALL = "LIVE_CALL"

@@ -43,7 +43,10 @@ class TCPAHoursRule(ComplianceRule):
                     rule_id=self.rule_id,
                     is_passed=False,
                     citation=self.citation,
-                    reason=f"Current recipient local time ({local_dt.strftime('%H:%M %Z')}) is outside TCPA permitted window (08:00-21:00)",
+                    reason=(
+                        f"Current recipient local time ({local_dt.strftime('%H:%M %Z')}) is "
+                        "outside TCPA permitted window (08:00-21:00)"
+                    ),
                 )
 
         return RuleVerdict(
@@ -109,7 +112,9 @@ class ReassignedNumbersRule(ComplianceRule):
                     rule_id=self.rule_id,
                     is_passed=False,
                     citation=self.citation,
-                    reason="Telephone number flagged as reassigned in FCC Reassigned Numbers Database",
+                    reason=(
+                        "Telephone number flagged as reassigned in FCC Reassigned Numbers Database"
+                    ),
                 )
         return RuleVerdict(self.rule_id, True, self.citation, "RND verified")
 
@@ -131,7 +136,10 @@ class WirelessConsentRule(ComplianceRule):
                     rule_id=self.rule_id,
                     is_passed=False,
                     citation=self.citation,
-                    reason="Automated call or SMS to wireless number requires Prior Express Written Consent (PEWC)",
+                    reason=(
+                        "Automated call or SMS to wireless number requires Prior Express Written "
+                        "Consent (PEWC)"
+                    ),
                 )
         return RuleVerdict(self.rule_id, True, self.citation, "Consent satisfied or landline/mail")
 
@@ -149,6 +157,9 @@ class MinorProtectionRule(ComplianceRule):
                 rule_id=self.rule_id,
                 is_passed=False,
                 citation=self.citation,
-                reason=f"Party age ({ctx.age}) is under 18; direct solicitation of minors is prohibited",
+                reason=(
+                    f"Party age ({ctx.age}) is under 18; direct solicitation of minors is "
+                    "prohibited"
+                ),
             )
         return RuleVerdict(self.rule_id, True, self.citation, "Adult party or age unknown")

@@ -41,7 +41,9 @@ class MarylandThirtyDayBlackoutRule(ComplianceRule):
                     rule_id=self.rule_id,
                     is_passed=False,
                     citation=self.citation,
-                    reason=f"Within Maryland 30-day blackout window ({remaining_days} days remaining)",
+                    reason=(
+                        f"Within Maryland 30-day blackout window ({remaining_days} days remaining)"
+                    ),
                 )
 
         return RuleVerdict(

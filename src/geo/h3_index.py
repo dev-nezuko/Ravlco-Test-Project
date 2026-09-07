@@ -72,9 +72,7 @@ def get_k_ring(h3_index: str, k: int = 1) -> set[str]:
     return {h3_index}
 
 
-def get_h3_indices(
-    lat: float | None, lon: float | None
-) -> tuple[str | None, str | None]:
+def get_h3_indices(lat: float | None, lon: float | None) -> tuple[str | None, str | None]:
     """Compute both Resolution 8 and Resolution 9 indices for a point."""
     res8 = point_to_h3(lat, lon, resolution=8)
     res9 = point_to_h3(lat, lon, resolution=9)

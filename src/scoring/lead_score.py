@@ -7,9 +7,11 @@ Scoring Rules & Integrity:
    the lead score is hard-clamped to 0.0 with priority 'DISQUALIFIED'.
 2. Scoring Dimensions:
    - Severity Score (up to 40 pts): Suspected Serious (A) = 40, Minor (B) = 25, Possible (C) = 10
-   - Incident Dynamics (up to 20 pts): Commercial vehicle (+10), Multi-vehicle (+5), Hit-and-run victim (+5)
+   - Incident Dynamics (up to 20 pts): Commercial vehicle (+10), Multi-vehicle (+5),
+     Hit-and-run victim (+5)
    - Vulnerable Road User (up to 15 pts): Pedestrian or Bicyclist (+15)
-   - Spatial Corridor Risk (up to 15 pts): Crash in high-frequency H3 hotspot / arterial corridor (+15)
+   - Spatial Corridor Risk (up to 15 pts): significant Gi* hotspot (+15), otherwise
+     interstate/arterial road class (+8)
    - Recency & Temporal Factor (up to 10 pts): Exponential decay post-day-30 window
 """
 

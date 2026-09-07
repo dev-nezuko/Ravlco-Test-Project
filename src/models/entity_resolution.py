@@ -62,7 +62,7 @@ class ResolvedCluster:
 
 def haversine_distance_meters(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """Calculate the great-circle distance between two points on Earth in meters."""
-    R = 6371000.0  # Earth radius in meters
+    earth_radius_m = 6371000.0
     phi1 = math.radians(lat1)
     phi2 = math.radians(lat2)
     delta_phi = math.radians(lat2 - lat1)
@@ -73,7 +73,7 @@ def haversine_distance_meters(lat1: float, lon1: float, lat2: float, lon2: float
         + math.cos(phi1) * math.cos(phi2) * math.sin(delta_lambda / 2.0) ** 2
     )
     c = 2.0 * math.atan2(math.sqrt(a), math.sqrt(1.0 - a))
-    return R * c
+    return earth_radius_m * c
 
 
 def evaluate_match_pair(c1: CrashCandidate, c2: CrashCandidate) -> tuple[bool, float, str]:

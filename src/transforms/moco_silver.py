@@ -13,6 +13,7 @@ Handles all four known MoCo defects documented in the assignment:
 from __future__ import annotations
 
 import logging
+import math
 import re
 from typing import Any
 
@@ -346,16 +347,14 @@ def validate_driver_grain(
 
 # ── Utility ──────────────────────────────────────────────────────────────
 
-import math
-
 
 def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """Approximate great-circle distance in km using the haversine formula."""
-    R = 6371.0  # Earth radius in km
+    earth_radius_km = 6371.0
     dlat = math.radians(lat2 - lat1)
     dlon = math.radians(lon2 - lon1)
     a = (
         math.sin(dlat / 2) ** 2
         + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2) ** 2
     )
-    return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    return earth_radius_km * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))

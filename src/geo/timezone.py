@@ -31,9 +31,7 @@ MOUNTAIN_CONUS_BOX = (31.0, -115.0, 49.0, -104.0)
 PACIFIC_CONUS_BOX = (32.5, -125.0, 49.0, -114.0)
 
 
-def get_iana_timezone(
-    lat: float | None, lon: float | None, state_hint: str | None = None
-) -> str:
+def get_iana_timezone(lat: float | None, lon: float | None, state_hint: str | None = None) -> str:
     """Resolve IANA timezone string (e.g. 'America/New_York', 'America/Chicago').
 
     Parameters

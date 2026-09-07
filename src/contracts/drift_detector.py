@@ -69,11 +69,13 @@ def detect_drift(
         volume_ratio = n_records / historical_row_count
         if volume_ratio < 0.70:
             volume_anomalies.append(
-                f"Volume drop anomaly: batch size {n_records} is {(1 - volume_ratio):.1%} below baseline {historical_row_count}"
+                f"Volume drop anomaly: batch size {n_records} is {(1 - volume_ratio):.1%} "
+                f"below baseline {historical_row_count}"
             )
         elif volume_ratio > 1.50:
             volume_anomalies.append(
-                f"Volume surge anomaly: batch size {n_records} is {(volume_ratio - 1):.1%} above baseline {historical_row_count}"
+                f"Volume surge anomaly: batch size {n_records} is {(volume_ratio - 1):.1%} "
+                f"above baseline {historical_row_count}"
             )
 
     if n_records == 0:

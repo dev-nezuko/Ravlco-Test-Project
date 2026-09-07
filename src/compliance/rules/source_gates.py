@@ -30,7 +30,10 @@ class DPPAGate(ComplianceRule):
                 rule_id=self.rule_id,
                 is_passed=False,
                 citation=self.citation,
-                reason="Personal information obtained from DMV/MVA records without express consent under DPPA",
+                reason=(
+                    "Personal information obtained from DMV/MVA records without express consent "
+                    "under DPPA"
+                ),
             )
         return RuleVerdict(self.rule_id, True, self.citation, "DPPA permissible")
 
@@ -52,7 +55,10 @@ class TexasCrashReportGate(ComplianceRule):
                 rule_id=self.rule_id,
                 is_passed=False,
                 citation=self.citation,
-                reason="Texas crash reports cannot be used for commercial solicitation under Tex. Transp. Code § 550.065",
+                reason=(
+                    "Texas crash reports cannot be used for commercial solicitation under Tex. "
+                    "Transp. Code § 550.065"
+                ),
             )
         return RuleVerdict(self.rule_id, True, self.citation, "Non-Texas source")
 
@@ -74,6 +80,9 @@ class FARSFatalityGate(ComplianceRule):
                 rule_id=self.rule_id,
                 is_passed=False,
                 citation=self.citation,
-                reason="Fatal crash victims/families cannot be contacted via unsolicited commercial outreach",
+                reason=(
+                    "Fatal crash victims/families cannot be contacted via unsolicited commercial "
+                    "outreach"
+                ),
             )
         return RuleVerdict(self.rule_id, True, self.citation, "Non-fatal record")

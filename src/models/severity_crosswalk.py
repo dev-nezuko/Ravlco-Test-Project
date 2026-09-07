@@ -16,11 +16,11 @@ KABCO Standard Scale:
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 
-class KABCOSeverity(str, Enum):
+class KABCOSeverity(StrEnum):
     """Standardized KABCO injury severity levels."""
 
     FATAL = "K"

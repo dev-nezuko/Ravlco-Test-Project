@@ -1,8 +1,10 @@
 """Spatial autocorrelation and hotspot analysis module.
 
 Implements:
-- Getis-Ord Gi* statistic: Identifies statistically significant spatial clusters of high crash frequency / injury counts.
-- Local Indicators of Spatial Association (Local Moran's I / LISA): Detects spatial clusters and spatial outliers (High-High, Low-Low, High-Low, Low-High).
+- Getis-Ord Gi* statistic: flags statistically significant clusters of high
+  crash frequency or injury counts.
+- Local Moran's I (LISA): detects spatial clusters and outliers
+  (High-High, Low-Low, High-Low, Low-High).
 - Spatial weights matrix generation using H3 hexagonal neighbor topology.
 """
 

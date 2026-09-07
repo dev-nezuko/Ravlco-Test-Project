@@ -31,7 +31,7 @@ PRESET_QUERIES = {
     "2": (
         "Harmonized KABCO Severity Distribution (FHWA / ANSI D16.1)",
         """
-        SELECT 
+        SELECT
             s.severity_code,
             s.severity_name,
             s.rank,
@@ -46,7 +46,7 @@ PRESET_QUERIES = {
     "3": (
         "Compliance Gate Breakdown: Status & Statutory Citations",
         """
-        SELECT 
+        SELECT
             p.source_system,
             p.contact_eligibility_status,
             COALESCE(array_to_string(p.ineligibility_reasons, '; '), 'NONE (PASSED)') AS citations,
@@ -59,7 +59,7 @@ PRESET_QUERIES = {
     "4": (
         "Geospatial Enrichment: H3 Hexagonal Indices, Road Snapping & Timezones",
         """
-        SELECT 
+        SELECT
             c.crash_id,
             c.source_system,
             loc.nearest_road_name,
@@ -77,7 +77,7 @@ PRESET_QUERIES = {
     "5": (
         "Actionable Scored Leads vs Disqualified Records",
         """
-        SELECT 
+        SELECT
             p.party_id,
             p.crash_id,
             p.source_system,

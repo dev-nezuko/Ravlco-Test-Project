@@ -35,7 +35,10 @@ class TexasBarratryRule(ComplianceRule):
                 rule_id=self.rule_id,
                 is_passed=False,
                 citation=self.citation,
-                reason="Direct contact of Texas accident victims is a felony under Tex. Penal Code § 38.12",
+                reason=(
+                    "Direct contact of Texas accident victims is a felony under Tex. Penal Code "
+                    "§ 38.12"
+                ),
             )
         return RuleVerdict(self.rule_id, True, self.citation, "Non-Texas jurisdiction")
 
@@ -63,6 +66,9 @@ class MarylandLiveContactBarratryRule(ComplianceRule):
                     rule_id=self.rule_id,
                     is_passed=False,
                     citation=self.citation,
-                    reason="Live telephone, autodialed call, or SMS outreach to accident victims is prohibited in Maryland",
+                    reason=(
+                        "Live telephone, autodialed call, or SMS outreach to accident victims is "
+                        "prohibited in Maryland"
+                    ),
                 )
         return RuleVerdict(self.rule_id, True, self.citation, "Permissible channel or non-MD")

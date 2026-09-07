@@ -55,7 +55,7 @@ def reproject_point(
         return x, y
 
     # Fallback: Spherical Web Mercator approximation (EPSG:3857)
-    R = 6378137.0
-    x = R * math.radians(lon)
-    y = R * math.log(math.tan(math.pi / 4.0 + math.radians(lat) / 2.0))
+    radius_m = 6378137.0
+    x = radius_m * math.radians(lon)
+    y = radius_m * math.log(math.tan(math.pi / 4.0 + math.radians(lat) / 2.0))
     return x, y

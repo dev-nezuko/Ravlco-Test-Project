@@ -10,6 +10,7 @@ Handles the known TxDOT defects documented in the assignment:
 from __future__ import annotations
 
 import logging
+import math
 import re
 from datetime import UTC, datetime
 from typing import Any
@@ -53,7 +54,6 @@ def resolve_coordinates(
         cris_lon = attrs.get("longitude")
         rpt_lat = attrs.get("rpt_latitude")
         rpt_lon = attrs.get("rpt_longitude")
-        located = attrs.get("located_fl", "")
 
         cris_valid = _is_valid_coord(cris_lat, cris_lon)
         rpt_valid = _is_valid_coord(rpt_lat, rpt_lon)
@@ -302,8 +302,6 @@ UNDOCUMENTED_CODE_COLUMNS = [
 
 # ── Utilities ────────────────────────────────────────────────────────────
 
-import math
-
 
 def _is_valid_coord(lat: Any, lon: Any) -> bool:
     """Check if a coordinate pair is non-null and within plausible Texas bounds."""
@@ -319,7 +317,7 @@ def _is_valid_coord(lat: Any, lon: Any) -> bool:
 
 def _approx_distance_m(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """Quick approximate distance in meters (equirectangular projection)."""
-    R = 6371000  # Earth radius in meters
+    earth_radius_m = 6371000
     x = math.radians(lon2 - lon1) * math.cos(math.radians((lat1 + lat2) / 2))
     y = math.radians(lat2 - lat1)
-    return math.sqrt(x * x + y * y) * R
+    return math.sqrt(x * x + y * y) * earth_radius_m

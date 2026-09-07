@@ -69,7 +69,7 @@ SAMPLE_MOCO_ROADS = [
 def _point_to_line_segment_dist(
     plat: float, plon: float, lat1: float, lon1: float, lat2: float, lon2: float
 ) -> tuple[float, float, float]:
-    """Calculate orthogonal distance from point (plat, plon) to line segment (lat1, lon1)-(lat2, lon2).
+    """Distance from point (plat, plon) to the segment (lat1, lon1)-(lat2, lon2).
 
     Returns (distance_meters, snapped_lat, snapped_lon).
     """
