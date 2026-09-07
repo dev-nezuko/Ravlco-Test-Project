@@ -76,3 +76,32 @@ ideal for spatial autocorrelation (Getis-Ord Gi* hot spot analysis). Res 9 isola
 individual intersections and road segments (<175m edge length), preventing high-risk
 intersections from washing out across broader arterial zones.
 
+---
+
+## 2026-09-07 — Complete suppression of Texas crash data for direct contact
+
+**Decision:** All records originating from Texas (TxDOT CRIS or Texas-located FARS)
+are strictly suppressed from lead generation (`contact_eligibility_status = 'INELIGIBLE'`).
+
+**Rationale:** Under Texas Penal Code § 38.12 (Barratry and Solicitation of Professional
+Employment), soliciting an accident victim or family member within 30 days of a crash,
+or obtaining police crash reports for the purpose of communicating with victims, is
+a third-degree felony. Furthermore, Texas Transportation Code § 550.065 restricts
+crash reports to privileged parties and bars commercial marketing solicitations.
+There is no lawful basis to generate outbound direct contact leads from Texas crash data.
+
+---
+
+## 2026-09-07 — Maryland 30-day moratorium & direct mail restriction
+
+**Decision:** Montgomery County, MD records are suppressed from all live telephone
+and SMS contact at all times. Direct mail contact is strictly barred during the first
+30 calendar days following the collision date.
+
+**Rationale:** Maryland Business Occupations & Professions Code § 10-605 and MARPC
+Rule 19-307.3 prohibit attorney and professional contact of accident victims within
+30 days of the crash. Live telephonic outreach to accident victims is completely
+prohibited under Maryland attorney ethics rules. Only post-day-30 targeted mail
+with conspicuous advertising disclosures is permissible.
+
+
