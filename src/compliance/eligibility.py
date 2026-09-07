@@ -111,7 +111,7 @@ def evaluate_party_eligibility(
         is_wireless=party.get("is_wireless", False),
         has_pewc=party.get("has_pewc", False),
         is_on_dnc_registry=party.get("is_on_dnc_registry", False),
-        dnc_scrub_timestamp=party.get("dnc_scrub_timestamp", eval_time),
+        dnc_scrub_timestamp=party.get("dnc_scrub_timestamp"),
         is_rnd_valid=party.get("is_rnd_valid", True),
         recipient_timezone=crash.get("timezone_iana"),
         attributes=party.get("attributes", {}),

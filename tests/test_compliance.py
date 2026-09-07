@@ -165,3 +165,34 @@ def test_minor_protection():
     )
     assert status == "INELIGIBLE"
     assert "ETHICS_MINOR_PROTECTION" in reasons
+
+
+def test_missing_dnc_scrub_blocks_phone_outreach():
+    """A party with no DNC scrub on record must not pass the DNC gate for calls."""
+    crash = {
+        "crash_id": "CRASH_005",
+        "source_system": "other",
+        "crash_timestamp": datetime(2024, 1, 1, tzinfo=timezone.utc),
+        "timezone_iana": "America/New_York",
+    }
+    party = {
+        "party_id": "PARTY_005",
+        "source_system": "other",
+        "person_type": "DRIVER",
+        "injury_severity": "C",
+        "age": 40,
+    }
+    midday_eastern = datetime(2024, 6, 15, 16, 0, tzinfo=timezone.utc)
+
+    status, reasons = evaluate_party_eligibility(
+        party, crash, channel=ContactChannel.LIVE_CALL, evaluation_time=midday_eastern
+    )
+    assert status == "INELIGIBLE"
+    assert reasons == ["47_CFR_64_1200_C_2"]
+
+    party["dnc_scrub_timestamp"] = midday_eastern - timedelta(days=3)
+    status, reasons = evaluate_party_eligibility(
+        party, crash, channel=ContactChannel.LIVE_CALL, evaluation_time=midday_eastern
+    )
+    assert status == "ELIGIBLE"
+    assert reasons == []
