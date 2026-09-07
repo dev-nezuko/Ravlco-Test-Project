@@ -63,7 +63,7 @@ def detect_drift(
         volume_anomalies.append(
             f"Row count {n_records} below expected minimum {baseline.expected_min_rows}"
         )
-    elif historical_row_count is not None and historical_row_count > 0:
+    if historical_row_count is not None and historical_row_count > 0:
         volume_ratio = n_records / historical_row_count
         if volume_ratio < 0.70:
             volume_anomalies.append(
