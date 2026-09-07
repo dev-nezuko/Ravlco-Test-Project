@@ -205,7 +205,7 @@ def fetch_live_census_acs(
     }
 
     try:
-        resp = httpx.get(url, params=params, timeout=10.0)
+        resp = httpx.get(url, params=params, timeout=2.0)
         if resp.status_code == 200:
             data = resp.json()
             # Header is data[0], values in data[1]
