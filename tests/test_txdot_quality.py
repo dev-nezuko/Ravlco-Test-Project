@@ -107,6 +107,42 @@ class TestCoordinatePrecedence:
         assert r4["coord_source"] == "officer"
         assert r4["resolved_latitude"] == 29.4241
 
+    def test_unlocated_cris_coords_defer_to_officer(self):
+        """located_fl='N' means CRIS did not geocode the crash; use the officer pair."""
+        records = [
+            {
+                "attributes": {
+                    "crash_id": 6,
+                    "latitude": 30.2672,
+                    "longitude": -97.7431,
+                    "rpt_latitude": 30.5000,
+                    "rpt_longitude": -97.6000,
+                    "located_fl": "N",
+                }
+            }
+        ]
+        attrs = resolve_coordinates(records)[0]["attributes"]
+        assert attrs["coord_source"] == "officer"
+        assert attrs["resolved_latitude"] == 30.5000
+        assert attrs["coord_divergence_meters"] > 500
+
+    def test_unlocated_cris_coords_without_officer_pair_are_missing(self):
+        records = [
+            {
+                "attributes": {
+                    "crash_id": 7,
+                    "latitude": 30.2672,
+                    "longitude": -97.7431,
+                    "rpt_latitude": None,
+                    "rpt_longitude": None,
+                    "located_fl": "N",
+                }
+            }
+        ]
+        attrs = resolve_coordinates(records)[0]["attributes"]
+        assert attrs["coord_source"] == "none"
+        assert attrs["coord_quality_flag"] == "MISSING"
+
     def test_no_coords_handled(self, records_with_competing_coords):
         """Records with no coordinates get coord_source='none'."""
         result = resolve_coordinates(records_with_competing_coords)

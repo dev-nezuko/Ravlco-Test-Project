@@ -40,7 +40,9 @@ def resolve_coordinates(
     Adds:
       - ``resolved_latitude``, ``resolved_longitude`` — the chosen pair
       - ``coord_source`` — "cris" | "officer" | "none"
-      - ``coord_conflict`` — True if both pairs present and disagree
+      - ``coord_conflict`` — True if both pairs present and disagree by >500 m
+      - ``coord_divergence_meters`` — distance between the pairs, or None
+      - ``coord_quality_flag`` — "MISSING" when neither pair is usable
     """
     cris_used = 0
     officer_used = 0
@@ -54,6 +56,7 @@ def resolve_coordinates(
         cris_lon = attrs.get("longitude")
         rpt_lat = attrs.get("rpt_latitude")
         rpt_lon = attrs.get("rpt_longitude")
+        cris_located = attrs.get("located_fl") == "Y"
 
         cris_valid = _is_valid_coord(cris_lat, cris_lon)
         rpt_valid = _is_valid_coord(rpt_lat, rpt_lon)
@@ -61,14 +64,16 @@ def resolve_coordinates(
         # Check for conflict between the two pairs
         if cris_valid and rpt_valid:
             dist = _approx_distance_m(cris_lat, cris_lon, rpt_lat, rpt_lon)
+            attrs["coord_divergence_meters"] = round(dist, 1)
             attrs["coord_conflict"] = dist > 500  # >500m = meaningful disagreement
             if attrs["coord_conflict"]:
                 conflicts += 1
         else:
+            attrs["coord_divergence_meters"] = None
             attrs["coord_conflict"] = False
 
-        # Apply precedence
-        if cris_valid:
+        # CRIS coordinates are authoritative only when CRIS says it geocoded the crash.
+        if cris_valid and cris_located:
             attrs["resolved_latitude"] = cris_lat
             attrs["resolved_longitude"] = cris_lon
             attrs["coord_source"] = "cris"
@@ -82,6 +87,7 @@ def resolve_coordinates(
             attrs["resolved_latitude"] = None
             attrs["resolved_longitude"] = None
             attrs["coord_source"] = "none"
+            attrs["coord_quality_flag"] = "MISSING"
             no_coords += 1
 
     logger.info(
